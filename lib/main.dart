@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:projectalpha/HomePage/HomePage.dart';
 import 'package:projectalpha/login/login.dart';
+import 'package:projectalpha/login/register.dart';
 import 'package:projectalpha/theme/themes.dart';
 
 void main() {
@@ -9,13 +11,18 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: AppTheme.theme,
-      home: LoginPage(),
+      initialRoute: '/login',
+      routes: {
+        '/homepage': (context) => const Homepage(),
+        '/login': (context) => LoginPage(),
+        '/reg': (context) => const RegForm(),
+      },
     );
   }
 }
+

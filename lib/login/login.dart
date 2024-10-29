@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:projectalpha/login/register.dart';
@@ -137,7 +136,9 @@ class _LoginPageState extends State<LoginPage> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.pushReplacementNamed(context, '/homepage');
+                        },
                         child: Text(
                           'تسجيل الدخول',
                           style: TextStyle(fontSize: screenSize.width * 0.045, color: Colors.white),
@@ -193,7 +194,7 @@ class _LoginPageState extends State<LoginPage> {
                           Navigator.push(
                             context,
                             PageRouteBuilder(
-                              pageBuilder: (context, animation, secondaryAnimation) => const RegistrationForm(),
+                              pageBuilder: (context, animation, secondaryAnimation) => const RegForm(),
                               transitionsBuilder: (context, animation, secondaryAnimation, child) {
                                 return Stack(
                                   children: [

@@ -3,14 +3,14 @@ import 'package:flutter_svg/svg.dart';
 
 
 
-class RegistrationForm extends StatefulWidget {
-  const RegistrationForm();
+class RegForm extends StatefulWidget {
+  const RegForm();
 
   @override
-  _RegistrationFormState createState() => _RegistrationFormState();
+  _RegFormState createState() => _RegFormState();
 }
 
-class _RegistrationFormState extends State<RegistrationForm> {
+class _RegFormState extends State<RegForm> {
   int? selectedDay;
   String? selectedMonth;
   int? selectedYear;
