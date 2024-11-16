@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:projectalpha/login/register.dart';
+import 'package:get/get.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -137,18 +137,18 @@ class _LoginPageState extends State<LoginPage> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.pushReplacementNamed(context, '/homepage');
+                          Get.offNamed('/mainhome');
                         },
-                        child: Text(
-                          'تسجيل الدخول',
-                          style: TextStyle(fontSize: screenSize.width * 0.045, color: Colors.white),
-                        ),
                         style: ElevatedButton.styleFrom(
                           padding: EdgeInsets.all(15),
                           backgroundColor: Colors.blue[800],
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
+                        ),
+                        child: Text(
+                          'تسجيل الدخول',
+                          style: TextStyle(fontSize: screenSize.width * 0.045, color: Colors.white),
                         ),
                       ),
                     ),
@@ -168,7 +168,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     SizedBox(height: screenSize.height * 0.015),
 
-                    Row(
+                    const Row(
                       children: [
                         Expanded(
                           child: Divider(
@@ -191,36 +191,18 @@ class _LoginPageState extends State<LoginPage> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            PageRouteBuilder(
-                              pageBuilder: (context, animation, secondaryAnimation) => const RegForm(),
-                              transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                return Stack(
-                                  children: [
-                                    BackdropFilter(
-                                      filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-                                    ),
-                                    FadeTransition(
-                                      opacity: animation,
-                                      child: child,
-                                    ),
-                                  ],
-                                );
-                              },
-                            ),
-                          );
+                          Get.toNamed('/reg');
                         },
-                        child: Text(
-                          'أنشاء حساب',
-                          style: TextStyle(fontSize: screenSize.width * 0.045, color: Colors.white),
-                        ),
                         style: ElevatedButton.styleFrom(
                           padding: EdgeInsets.all(15),
                           backgroundColor: Colors.blue[800],
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
+                        ),
+                        child: Text(
+                          'أنشاء حساب',
+                          style: TextStyle(fontSize: screenSize.width * 0.045, color: Colors.white),
                         ),
                       ),
                     ),

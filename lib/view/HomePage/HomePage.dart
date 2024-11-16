@@ -1,19 +1,13 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:projectalpha/HomePage/MyImage.dart';
+import 'package:get/get.dart';
+import 'package:projectalpha/component/MyImage.dart';
+import 'package:projectalpha/controller/filtercontroller.dart';
 
-class Homepage extends StatefulWidget {
-  const Homepage({super.key});
+// ignore: must_be_immutable
+class Homepage extends StatelessWidget {
+  Homepage({super.key});
 
-  @override
-  State<Homepage> createState() => _HomepageState();
-}
-
-class _HomepageState extends State<Homepage> {
-  int i = 1;
-  int? _selectedOption1;
-  int? _selectedOption2;
-  bool filterOn = false ;
   List<Map<String, String>> appointments = [
     {
       'name': 'د.احمد العربي',
@@ -29,24 +23,13 @@ class _HomepageState extends State<Homepage> {
     },
   ];
 
-  List<String> options = ['1', '2', '3'];
 
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(-15703137),
-        title: const Text(
-          "الصفحة الرئيسية",
-          style: TextStyle(color: Colors.white),
-        ),
-        centerTitle: true,
-      ),
-      backgroundColor: Color(-657931),
-      body: Stack(
-        children: [
-          Column(
+        final screenSize = MediaQuery.of(context).size;
+    return Stack(
+      children: [
+        Column(
             children: [
               Padding(
                 padding: const EdgeInsets.all(20.0),
@@ -55,29 +38,29 @@ class _HomepageState extends State<Homepage> {
                     AnimatedContainer(
                       width: screenSize.height * 0.06,
                       height: screenSize.height * 0.06,
-                      duration: Duration(),
-                      child: ElevatedButton(
+                      duration: const Duration(),
+                      child: GetBuilder<Filtercontroller>(
+                        builder: (controller)=> ElevatedButton(
                         style: ButtonStyle(
-                          shape: MaterialStateProperty.all(
+                          shape: WidgetStateProperty.all(
                             RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10)),
                           ),
                           backgroundColor:
-                          MaterialStateProperty.all(filterOn ? Colors.white : Color(-15441250)),
-                          padding: MaterialStateProperty.all(EdgeInsets.zero),
+                          WidgetStateProperty.all(controller.isenable ? Colors.white : Color(-15441250)),
+                          padding: WidgetStateProperty.all(EdgeInsets.zero),
                         ),
                         child: Image.asset(
-                          color: filterOn ? Color(-15441250) : Colors.white,
+                          color: controller.isenable ? const Color(-15441250) : Colors.white,
                           "assets/filter.png",
                           height: screenSize.width * 0.06,
                           width: screenSize.width * 0.06,
                           fit: BoxFit.fill,
                         ),
                         onPressed: () {
-                          setState(() {
-                            filterOn = !filterOn;
-                          });
+                            controller.changeEnable();
                         },
+                      ),
                       ),
                     ),
                     SizedBox(width: screenSize.width * 0.05),
@@ -99,7 +82,7 @@ class _HomepageState extends State<Homepage> {
               ),
               SizedBox(height: screenSize.height * 0.03),
               CarouselSlider(
-                items: [
+                items: const [
                   MyImage(path: 'assets/test1.png'),
                   MyImage(path: 'assets/test1.png'),
                   MyImage(path: 'assets/test1.png')
@@ -162,7 +145,7 @@ class _HomepageState extends State<Homepage> {
                                 SizedBox(height: screenSize.height * 0.005),
                                 Text(
                                   appointment['clinic']!,
-                                  style: TextStyle(color: Color(-7763575),fontSize: screenSize.height * 0.02),
+                                  style: TextStyle(color: const Color(-7763575),fontSize: screenSize.height * 0.02),
                                   textDirection: TextDirection.rtl,
                                 ),
                                 SizedBox(height: screenSize.height * 0.005),
@@ -172,13 +155,13 @@ class _HomepageState extends State<Homepage> {
                                   children: [
                                     Text(
                                       appointment['date']!,
-                                      style: TextStyle(color: Color(-13280354),fontSize: screenSize.height * 0.017),
+                                      style: TextStyle(color: const Color(-13280354),fontSize: screenSize.height * 0.017),
                                       textDirection: TextDirection.rtl,
                                     ),
                                     SizedBox(width: screenSize.width * 0.005),
                                     Icon(
                                       Icons.access_time_filled,
-                                      color: Color(-13280354),
+                                      color: const Color(-13280354),
                                       size: screenSize.height * 0.016,
                                     ),
                                   ],
@@ -202,19 +185,19 @@ class _HomepageState extends State<Homepage> {
               ),
             ],
           ),
-          AnimatedPositioned(
+          GetBuilder<Filtercontroller>(builder: (controller) =>           AnimatedPositioned(
             duration: const Duration(milliseconds: 300),
             right: screenSize.width * 0.04,
-            top: filterOn ? screenSize.height * 0.09 : 0.09,
+            top: controller.isenable ? screenSize.height * 0.09 : 0.09,
             child: AnimatedSize(
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOutCubicEmphasized,
-              child: filterOn
-                  ? Container(
+              child: controller.isenable
+                  ? SizedBox(
                 width: screenSize.width * 0.75,
                 height: screenSize.height * 0.06,
                 child: Card(
-                  color: Color(-789517),
+                  color: const Color(-789517),
                   elevation: 5,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -231,19 +214,19 @@ class _HomepageState extends State<Homepage> {
                             padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.04),
                             child: DropdownButtonHideUnderline(
                               child: DropdownButton<int>(
-                                value: _selectedOption1,
+                                value: controller.selectedOption1,
                                 hint: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Icon(Icons.arrow_drop_down, color: Colors.black),
+                                    const Icon(Icons.arrow_drop_down, color: Colors.black),
                                     Text(
                                       "التخصص",
                                       style: TextStyle(fontSize: screenSize.height * 0.018, color: Colors.grey[700]),
                                     ),
                                   ],
                                 ),
-                                icon: SizedBox.shrink(),
-                                items: options.asMap().entries.map((entry) {
+                                icon: const SizedBox.shrink(),
+                                items: controller.options.asMap().entries.map((entry) {
                                   int index = entry.key;
                                   String option = entry.value;
                                   return DropdownMenuItem<int>(
@@ -255,9 +238,9 @@ class _HomepageState extends State<Homepage> {
                                   );
                                 }).toList(),
                                 onChanged: (value) {
-                                  setState(() {
-                                    _selectedOption1 = value;
-                                  });
+                                  
+                                    controller.changevalueofoption1(value);
+                              
                                 },
                               ),
                             ),
@@ -276,19 +259,19 @@ class _HomepageState extends State<Homepage> {
                             padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.06),
                             child: DropdownButtonHideUnderline(
                               child: DropdownButton<int>(
-                                value: _selectedOption2,
+                                value: controller.selectedOption2,
                                 hint: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Icon(Icons.arrow_drop_down, color: Colors.black),
+                                    const Icon(Icons.arrow_drop_down, color: Colors.black),
                                     Text(
                                       "المحافظة",
                                       style: TextStyle(fontSize: screenSize.height * 0.018, color: Colors.grey[700]),
                                     ),
                                   ],
                                 ),
-                                icon: SizedBox.shrink(),
-                                items: options.asMap().entries.map((entry) {
+                                icon: const SizedBox.shrink(),
+                                items: controller.options.asMap().entries.map((entry) {
                                   int index = entry.key;
                                   String option = entry.value;
                                   return DropdownMenuItem<int>(
@@ -300,9 +283,7 @@ class _HomepageState extends State<Homepage> {
                                   );
                                 }).toList(),
                                 onChanged: (value) {
-                                  setState(() {
-                                    _selectedOption2 = value;
-                                  });
+                                  controller.changevalueofoption2(value);
                                 },
                               ),
                             ),
@@ -313,67 +294,11 @@ class _HomepageState extends State<Homepage> {
                   ),
                 ),
               )
-                  : SizedBox(),
+                  : const SizedBox(),
             ),
-          ),
-
-
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30)
-                ),
-                color: Color(-131587),
-              ),
-              height: screenSize.height * 0.1,
-              child: Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    NavItem(0, "assets/home.png"),
-                    SizedBox(width: screenSize.width * 0.05),
-                    NavItem(1, "assets/Notices.png"),
-                    SizedBox(width: screenSize.width * 0.05),
-                    NavItem(2, "assets/something.png"),
-                    SizedBox(width: screenSize.width * 0.05),
-                    NavItem(3, "assets/setting.png"),
-                    SizedBox(width: screenSize.width * 0.05),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  GestureDetector NavItem(int index, String assetPath) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          i = index;
-        });
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        height: MediaQuery.of(context).size.height * 0.06,
-        width: MediaQuery.of(context).size.height * 0.06,
-        decoration: BoxDecoration(
-          color: i == index ? Color(-15703137) : Colors.white,
-          shape: BoxShape.circle,
-        ),
-        child: Center(
-          child: Image.asset(
-            assetPath,
-            scale: 4,
-            color: i == index ? Colors.white : Colors.grey,
-          ),
-        ),
-      ),
+          )
+          )
+        ]
     );
   }
 }

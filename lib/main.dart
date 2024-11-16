@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:projectalpha/HomePage/HomePage.dart';
-import 'package:projectalpha/login/login.dart';
+import 'package:get/instance_manager.dart';
+import 'package:get/route_manager.dart';
+import 'package:projectalpha/controller/filtercontroller.dart';
+import 'package:projectalpha/controller/navbarcontroller.dart';
 import 'package:projectalpha/login/register.dart';
+import 'package:projectalpha/view/HomePage/HomePage.dart';
+import 'package:projectalpha/view/HomePage/MainHomePage.dart';
+import 'package:projectalpha/login/login.dart';
 import 'package:projectalpha/theme/themes.dart';
+import 'package:projectalpha/view/setting/settingpage.dart';
 
 void main() {
+  Get.put(Navbarcontroller());
+  Get.put(Filtercontroller());
+
   runApp(const MyApp());
 }
 
@@ -13,15 +22,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       theme: AppTheme.theme,
       initialRoute: '/login',
-      routes: {
-        '/homepage': (context) => const Homepage(),
-        '/login': (context) => LoginPage(),
-        '/reg': (context) => const RegForm(),
-      },
+      getPages: [
+        GetPage(name: "/login", page: () => LoginPage()),  
+        GetPage(name: "/reg", page: () => RegForm()),  
+        GetPage(name: "/mainhome", page: () => MainHomepage()),  
+        GetPage(name: "/home", page: () => Homepage()),       
+        GetPage(name: "/setting", page: () => Settingpage()),
+        ],
     );
   }
 }
