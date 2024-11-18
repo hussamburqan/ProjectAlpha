@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:projectalpha/controller/navbarcontroller.dart';
+import 'package:projectalpha/controller/navbar_controller.dart';
 
 class MyNavBar extends StatefulWidget {
   const MyNavBar({super.key});
@@ -51,7 +51,6 @@ class _MyNavBarState extends State<MyNavBar> {
       builder: (controller) {
         return GestureDetector(
           onTap: () {
-            // Update the page number in the controller when an item is tapped
             controller.ChangeNumber(index);
           },
           child: AnimatedContainer(

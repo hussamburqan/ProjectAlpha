@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
+import 'package:projectalpha/services/dio_helper.dart';
 
 
 
@@ -11,25 +13,126 @@ class RegForm extends StatefulWidget {
 }
 
 class _RegFormState extends State<RegForm> {
+
   int? selectedDay;
   String? selectedMonth;
   int? selectedYear;
   String? selectedGender;
+  String? selectedBloodType;
+  bool isLoading = false;
 
+  final _formKey = GlobalKey<FormState>();
+
+  final TextEditingController firstNameController = TextEditingController();
+  final TextEditingController lastNameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController addressController = TextEditingController();
   final DraggableScrollableController _controller = DraggableScrollableController();
+
+  List<int> days = List<int>.generate(31, (index) => index + 1);
+  List<String> months = [
+    'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو',
+    'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
+  ];
+  final List<String> bloodTypes = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'];
+  List<int> years = List<int>.generate(100, (index) => DateTime.now().year - index);
+
+  int calculateAge(int year, String month, int day) {
+    return DateTime.now().year - year;
+  }
+
+  Future<void> register() async {
+
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    if (firstNameController.text.isEmpty || lastNameController.text.isEmpty) {
+      Get.snackbar('خطأ', 'يرجى إدخال الاسم كاملاً');
+      return;
+    }
+
+    if (emailController.text.isEmpty) {
+      Get.snackbar('خطأ', 'يرجى إدخال البريد الإلكتروني');
+      return;
+    }
+
+    if (addressController.text.isEmpty) {
+      Get.snackbar('خطأ', 'يرجى إدخال العنوان');
+      return;
+    }
+
+    final emailRegExp = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegExp.hasMatch(emailController.text)) {
+      Get.snackbar('خطأ', 'صيغة البريد الإلكتروني غير صحيحة');
+      return;
+    }
+
+    if (passwordController.text.isEmpty) {
+      Get.snackbar('خطأ', 'يرجى إدخال كلمة المرور');
+      return;
+    }
+
+    if (passwordController.text.length < 8) {
+      Get.snackbar('خطأ', 'كلمة المرور يجب أن تكون 8 أحرف على الأقل');
+      return;
+    }
+
+    if (passwordController.text != confirmPasswordController.text) {
+      Get.snackbar('خطأ', 'كلمة المرور غير متطابقة');
+      return;
+    }
+
+    if (selectedDay == null || selectedMonth == null || selectedYear == null) {
+      Get.snackbar('خطأ', 'يرجى اختيار تاريخ الميلاد');
+      return;
+    }
+
+    final age = calculateAge(selectedYear!, selectedMonth!, selectedDay!);
+    if (age < 13) {
+      Get.snackbar('خطأ', 'يجب أن يكون عمرك 13 سنة على الأقل');
+      return;
+    }
+
+    if (selectedGender == null) {
+      Get.snackbar('خطأ', 'يرجى اختيار الجنس');
+      return;
+    }
+    if (selectedBloodType == null) {
+      Get.snackbar('خطأ', 'يرجى اختيار فصيلة الدم');
+      return;
+    }
+    setState(() => isLoading = true);
+    try {
+      final response = await DioHelper.postData(
+        url: 'users/register',
+        data: {
+          'name': '${firstNameController.text} ${lastNameController.text}',
+          'email': emailController.text,
+          'password': passwordController.text,
+          'address': 'null',
+          'age': calculateAge(selectedYear!, selectedMonth!, selectedDay!),
+          'gender': selectedGender == 'ذكر' ? 'male' : 'female',
+          'blood_type': 'A+',
+        },
+      );
+
+      if (response.data['status']) {
+        Get.offNamed('/login');
+      } else {
+        Get.snackbar('خطأ', response.data['message']);
+      }
+    } catch (e) {
+      Get.snackbar('خطأ', 'حدث خطأ في إنشاء الحساب');
+    }
+    setState(() => isLoading = false);
+  }
 
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
-
-    List<int> days = List<int>.generate(31, (index) => index + 1);
-    List<String> months = [
-      'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو',
-      'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
-    ];
-    List<int> years = List<int>.generate(100, (index) => DateTime.now().year - index);
-
-
     return Scaffold(
       backgroundColor: Color(-15702880),
       body: Stack(
@@ -63,7 +166,7 @@ class _RegFormState extends State<RegForm> {
                   alignment: Alignment.topRight,
                   child: Text(
                     'قم بإنشاء حساب',
-                    style: TextStyle(fontSize: screenSize.width * 0.07, color: Colors.white),
+                    style: TextStyle(fontSize: screenSize.height * 0.04, color: Colors.white),
                   ),
                 ),
               ],
@@ -84,289 +187,392 @@ class _RegFormState extends State<RegForm> {
                       topRight: Radius.circular(20),
                     ),
                   ),
-                  child: ListView(
-                    padding: EdgeInsets.all(screenSize.width * 0.05),
-                    children: [
-                      const Center(
-                        child: SizedBox(
-                          width: 50,
-                          child: Divider(thickness: 5),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        SizedBox(height: screenSize.height * 0.01),
+                        const Center(
+                          child: SizedBox(
+                            width: 50,
+                            child: Divider(thickness: 5),
+                          ),
                         ),
-                      ),
-                      SizedBox(height: screenSize.height * 0.02),
-
-
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              children: [
-                                Align(
-                                  alignment: Alignment.topRight,
-                                  child: Text(
-                                    'الاسم الثاني',
-                                    style: TextStyle(fontSize: screenSize.width * 0.045, color: Colors.black),
+                        SizedBox(height: screenSize.height * 0.01),
+                        Expanded(
+                          child: ListView(
+                            padding: EdgeInsets.all(screenSize.height * 0.01),
+                            children: [
+                          
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      children: [
+                                        Align(
+                                          alignment: Alignment.topRight,
+                                          child: Text(
+                                            'الاسم الثاني',
+                                            style: TextStyle(fontSize: screenSize.height* 0.02, color: Colors.black),
+                                          ),
+                                        ),
+                                        SizedBox(height: screenSize.height * 0.01),
+                                        Container(
+                                          height: screenSize.height * 0.05,
+                                          child: TextField(
+                                            textAlign: TextAlign.end,
+                                            controller: lastNameController,
+                                            decoration: InputDecoration(
+                                              border: OutlineInputBorder(
+                                                borderRadius: BorderRadius.circular(10),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
+                                  SizedBox(width: screenSize.width * 0.05),
+                                  Expanded(
+                                    child: Column(
+                                      children: [
+                                        Align(
+                                          alignment: Alignment.topRight,
+                                          child: Text(
+                                            'الاسم الاول',
+                                            style: TextStyle(fontSize: screenSize.height* 0.02, color: Colors.black),
+                                          ),
+                                        ),
+                                        SizedBox(height: screenSize.height * 0.01),
+                                        Container(
+                                          height: screenSize.height * 0.05,
+                                          child: TextField(
+                                            textAlign: TextAlign.end,
+                                            controller: firstNameController,
+                                            decoration: InputDecoration(
+                                              border: OutlineInputBorder(
+                                                borderRadius: BorderRadius.circular(10),
+                                              ),
+                                            )
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: screenSize.height * 0.02),
+                          
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          'السنة',
+                                          style: TextStyle(fontSize: screenSize.height* 0.02, color: Colors.black),
+                                        ),
+                                        SizedBox(height: screenSize.height * 0.01),
+                                        DropdownButtonHideUnderline(
+                                          child: DropdownButton<int>(
+                                            value: selectedYear,
+                                            hint: Align(
+                                              alignment: Alignment.centerRight,
+                                              child: Text(
+                                                'اختر سنة',
+                                                style: TextStyle(fontSize: screenSize.width * 0.045),
+                                              ),
+                                            ),
+                                            isExpanded: true,
+                                            items: years.map((year) {
+                                              return DropdownMenuItem<int>(
+                                                alignment: AlignmentDirectional.center,
+                                                value: year,
+                                                child: Text(year.toString()),
+                                              );
+                                            }).toList(),
+                                            onChanged: (value) {
+                                              setState(() {
+                                                selectedYear = value;
+                                              });
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(width: screenSize.width * 0.05),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          'الشهر',
+                                          style: TextStyle(fontSize: screenSize.height* 0.02, color: Colors.black),
+                                        ),
+                                        SizedBox(height: screenSize.height * 0.01),
+                                        DropdownButtonHideUnderline(
+                                          child: DropdownButton<String>(
+                                            value: selectedMonth,
+                                            hint: Align(
+                                              alignment: Alignment.centerRight,
+                                              child: Text(
+                                                'اختر الشهر',
+                                                style: TextStyle(fontSize: screenSize.width * 0.045),
+                                              ),
+                                            ),
+                                            isExpanded: true,
+                                            items: months.map((month) {
+                                              return DropdownMenuItem<String>(
+                                                alignment: AlignmentDirectional.center,
+                                                value: month,
+                                                child: Text(month),
+                                              );
+                                            }).toList(),
+                                            onChanged: (value) {
+                                              setState(() {
+                                                selectedMonth = value;
+                                              });
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(width: screenSize.width * 0.05),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          'اليوم',
+                                          style: TextStyle(fontSize: screenSize.height* 0.02, color: Colors.black),
+                                        ),
+                                        SizedBox(height: screenSize.height * 0.01),
+                                        DropdownButtonHideUnderline(
+                                          child: DropdownButton<int>(
+                                            value: selectedDay,
+                                            hint: Align(
+                                              alignment: Alignment.centerRight,
+                                              child: Text(
+                                                'اختر اليوم',
+                                                style: TextStyle(fontSize: screenSize.width * 0.045),
+                                              ),
+                                            ),
+                                            isExpanded: true,
+                                            items: days.map((day) {
+                                              return DropdownMenuItem<int>(
+                                                alignment: AlignmentDirectional.center,
+                                                value: day,
+                                                child: Text(day.toString()),
+                                              );
+                                            }).toList(),
+                                            onChanged: (value) {
+                                              setState(() {
+                                                selectedDay = value;
+                                              });
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                          
+                              SizedBox(height: screenSize.height * 0.02),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  // Blood Type Dropdown
+                                  Expanded(
+                                    flex: 1,
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          'فصيلة الدم',
+                                          style: TextStyle(fontSize: screenSize.height* 0.02),
+                                        ),
+                                        SizedBox(height: screenSize.height * 0.01),
+                                        Container(
+                                          height: screenSize.height * 0.05,
+                                          decoration: BoxDecoration(
+                                            border: Border.all(color: Colors.grey),
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                          padding: EdgeInsets.symmetric(horizontal: 10),
+                                          child: DropdownButtonHideUnderline(
+                                            child: DropdownButton<String>(
+                                              value: selectedBloodType,
+                                              hint: Align(
+                                                alignment: Alignment.centerRight,
+                                                child: Text(
+                                                  'إختر فصيلة الدم',
+                                                  style: TextStyle(fontSize: screenSize.width * 0.045),
+                                                ),
+                                              ),
+                                              isExpanded: true,
+                                              items: bloodTypes.map((type) => DropdownMenuItem(
+                                                alignment: AlignmentDirectional.center,
+                                                value: type,
+                                                child: Text(type),
+                                              )).toList(),
+                                              onChanged: (value) => setState(() => selectedBloodType = value),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(width: screenSize.width * 0.05),
+                                  // Gender Selection
+                                  Expanded(
+                                    flex: 1,
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          'الجنس',
+                                          style: TextStyle(fontSize: screenSize.height* 0.02),
+                                        ),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.end,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Text('أنثى'),
+                                                Radio<String>(
+                                                  value: 'أنثى',
+                                                  groupValue: selectedGender,
+                                                  onChanged: (value) => setState(() => selectedGender = value),
+                                                ),
+                                              ],
+                                            ),
+                                            Row(
+                                              children: [
+                                                Text('ذكر'),
+                                                Radio<String>(
+                                                  value: 'ذكر',
+                                                  groupValue: selectedGender,
+                                                  onChanged: (value) => setState(() => selectedGender = value),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: screenSize.height * 0.02),
+                              Align(
+                                alignment: Alignment.topRight,
+                                child: Text(
+                                  'العنوان',
+                                  style: TextStyle(fontSize: screenSize.height* 0.02),
                                 ),
-                                SizedBox(height: screenSize.height * 0.01),
-                                Container(
-                                  height: screenSize.height * 0.05,
-                                  child: TextField(
-                                    decoration: InputDecoration(
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
+                              ),
+                              SizedBox(height: screenSize.height * 0.01),
+                              Container(
+                                height: screenSize.height * 0.05,
+                                child: TextField(textAlign: TextAlign.end,
+                                  controller: addressController,
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
                                     ),
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(width: screenSize.width * 0.05),
-                          Expanded(
-                            child: Column(
-                              children: [
-                                Align(
-                                  alignment: Alignment.topRight,
-                                  child: Text(
-                                    'الاسم الاول',
-                                    style: TextStyle(fontSize: screenSize.width * 0.045, color: Colors.black),
-                                  ),
+                              ),
+                              SizedBox(height: screenSize.height * 0.02),
+                              Align(
+                                alignment: Alignment.topRight,
+                                child: Text(
+                                  'البريد الالكتروني',
+                                  style: TextStyle(fontSize: screenSize.height* 0.02),
                                 ),
-                                SizedBox(height: screenSize.height * 0.01),
-                                Container(
-                                  height: screenSize.height * 0.05,
-                                  child: TextField(
-                                    decoration: InputDecoration(
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
+                              ),
+                              SizedBox(height: screenSize.height * 0.01),
+                              Container(
+                                height: screenSize.height * 0.05,
+                                child: TextField(
+                                  controller: emailController,
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
                                     ),
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: screenSize.height * 0.02),
-
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  'السنة',
-                                  style: TextStyle(fontSize: screenSize.width * 0.045, color: Colors.black),
+                              ),
+                              SizedBox(height: screenSize.height * 0.02),
+                              Align(
+                                alignment: Alignment.topRight,
+                                child: Text(
+                                  'كلمة المرور',
+                                  style: TextStyle(fontSize: screenSize.height* 0.02),
                                 ),
-                                SizedBox(height: screenSize.height * 0.01),
-                                DropdownButtonHideUnderline(
-                                  child: DropdownButton<int>(
-                                    value: selectedYear,
-                                    hint: Text('اختر سنة'),
-                                    isExpanded: true,
-                                    items: years.map((year) {
-                                      return DropdownMenuItem<int>(
-                                        value: year,
-                                        child: Text(year.toString()),
-                                      );
-                                    }).toList(),
-                                    onChanged: (value) {
-                                      setState(() {
-                                        selectedYear = value;
-                                      });
-                                    },
+                              ),
+                              SizedBox(height: screenSize.height * 0.01),
+                              Container(
+                                height: screenSize.height * 0.05,
+                                child: TextField(
+                                  controller: passwordController,
+                                  obscureText: true,
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(width: screenSize.width * 0.05),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  'الشهر',
-                                  style: TextStyle(fontSize: screenSize.width * 0.045, color: Colors.black),
+                              ),
+                              SizedBox(height: screenSize.height * 0.02),
+                              Align(
+                                alignment: Alignment.topRight,
+                                child: Text(
+                                  'تاكيد كلمة المرور',
+                                  style: TextStyle(fontSize: screenSize.height* 0.02),
                                 ),
-                                SizedBox(height: screenSize.height * 0.01),
-                                DropdownButtonHideUnderline(
-                                  child: DropdownButton<String>(
-                                    value: selectedMonth,
-                                    hint: Text('اختر شهر'),
-                                    isExpanded: true,
-                                    items: months.map((month) {
-                                      return DropdownMenuItem<String>(
-                                        value: month,
-                                        child: Text(month),
-                                      );
-                                    }).toList(),
-                                    onChanged: (value) {
-                                      setState(() {
-                                        selectedMonth = value;
-                                      });
-                                    },
+                              ),
+                              SizedBox(height: screenSize.height * 0.01),
+                              Container(
+                                height: screenSize.height * 0.05,
+                                child: TextField(
+                                  controller: confirmPasswordController,
+                                  obscureText: true,
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(width: screenSize.width * 0.05),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  'اليوم',
-                                  style: TextStyle(fontSize: screenSize.width * 0.045, color: Colors.black),
-                                ),
-                                SizedBox(height: screenSize.height * 0.01),
-                                DropdownButtonHideUnderline(
-                                  child: DropdownButton<int>(
-                                    value: selectedDay,
-                                    hint: Text('اختر يوم'),
-                                    isExpanded: true,
-                                    items: days.map((day) {
-                                      return DropdownMenuItem<int>(
-                                        value: day,
-                                        child: Text(day.toString()),
-                                      );
-                                    }).toList(),
-                                    onChanged: (value) {
-                                      setState(() {
-                                        selectedDay = value;
-                                      });
-                                    },
+                              ),
+                              SizedBox(height: screenSize.height * 0.02),
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed: isLoading ? null : register,
+                                  child: isLoading
+                                      ? CircularProgressIndicator(color: Colors.white)
+                                      : Text(
+                                    'انشاء حساب',
+                                    style: TextStyle(fontSize: screenSize.height* 0.02, color: Colors.white),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    padding: EdgeInsets.all(15),
+                                    backgroundColor: Colors.blue[800],
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      SizedBox(height: screenSize.height * 0.02),
-                      Align(alignment: Alignment.topRight,
-                        child: Text(
-                          'الجنس',
-                          style: TextStyle(fontSize: screenSize.width * 0.045, color: Colors.black),
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Row(
-                            children: [
-
-                              Text('أنثى', style: TextStyle(fontSize: screenSize.width * 0.045)),
-                              Radio<String>(
-                                value: 'أنثى',
-                                groupValue: selectedGender,
-                                onChanged: (value) {
-                                  setState(() {
-                                    selectedGender = value;
-                                  });
-                                },
                               ),
                             ],
                           ),
-                          Row(
-                            children: [
-
-                              Text('ذكر', style: TextStyle(fontSize: screenSize.width * 0.045)),
-                              Radio<String>(
-                                value: 'ذكر',
-                                groupValue: selectedGender,
-                                onChanged: (value) {
-                                  setState(() {
-                                    selectedGender = value;
-                                  });
-                                },
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: screenSize.height * 0.02),
-                      Align(
-                        alignment: Alignment.topRight,
-                        child: Text(
-                          'البريد الالكتروني',
-                          style: TextStyle(fontSize: screenSize.width * 0.045),
                         ),
-                      ),
-                      SizedBox(height: screenSize.height * 0.01),
-                      Container(
-                        height: screenSize.height * 0.05,
-                        child: TextField(
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: screenSize.height * 0.02),
-                      Align(
-                        alignment: Alignment.topRight,
-                        child: Text(
-                          'كلمة المرور',
-                          style: TextStyle(fontSize: screenSize.width * 0.045),
-                        ),
-                      ),
-                      SizedBox(height: screenSize.height * 0.01),
-                      Container(
-                        height: screenSize.height * 0.05,
-                        child: TextField(
-                          obscureText: true,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: screenSize.height * 0.02),
-                      Align(
-                        alignment: Alignment.topRight,
-                        child: Text(
-                          'تاكيد كلمة المرور',
-                          style: TextStyle(fontSize: screenSize.width * 0.045),
-                        ),
-                      ),
-                      SizedBox(height: screenSize.height * 0.01),
-                      Container(
-                        height: screenSize.height * 0.05,
-                        child: TextField(
-                          obscureText: true,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: screenSize.height * 0.02),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () {},
-                          child: Text(
-                            'انشاء حساب',
-                            style: TextStyle(fontSize: screenSize.width * 0.045, color: Colors.white),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.all(15),
-                            backgroundColor: Colors.blue[800],
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          ),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 );
               }

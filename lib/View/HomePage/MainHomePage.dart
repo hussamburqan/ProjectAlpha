@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:projectalpha/component/MyNavBar.dart';
-import 'package:projectalpha/controller/navbarcontroller.dart';
+import 'package:projectalpha/controller/navbar_controller.dart';
 import 'package:projectalpha/view/HomePage/HomePage.dart';
 import 'package:projectalpha/view/setting/settingpage.dart';
 

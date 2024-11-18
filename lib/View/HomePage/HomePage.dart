@@ -1,35 +1,21 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:projectalpha/Controller/home_controller.dart';
 import 'package:projectalpha/component/MyImage.dart';
-import 'package:projectalpha/controller/filtercontroller.dart';
+import 'package:projectalpha/controller/filter_controller.dart';
 
 // ignore: must_be_immutable
-class Homepage extends StatelessWidget {
+class Homepage extends GetView<HomeController> {
   Homepage({super.key});
-
-  List<Map<String, String>> appointments = [
-    {
-      'name': 'د.احمد العربي',
-      'clinic': 'Middle East Heart Clinic',
-      'date': '22/10/2024 الثلاثاء 10 صباحاً',
-      'image': 'assets/doctor1.png',
-    },
-    {
-      'name': 'د.صفاء الحربي',
-      'clinic': 'The Golden Dentists',
-      'date': '23/10/2024 الثلاثاء 2 مساءً',
-      'image': 'assets/doctor2.png',
-    },
-  ];
 
 
   @override
   Widget build(BuildContext context) {
-        final screenSize = MediaQuery.of(context).size;
+    final screenSize = MediaQuery.of(context).size;
     return Stack(
-      children: [
-        Column(
+        children: [
+          Column(
             children: [
               Padding(
                 padding: const EdgeInsets.all(20.0),
@@ -41,26 +27,26 @@ class Homepage extends StatelessWidget {
                       duration: const Duration(),
                       child: GetBuilder<Filtercontroller>(
                         builder: (controller)=> ElevatedButton(
-                        style: ButtonStyle(
-                          shape: WidgetStateProperty.all(
-                            RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10)),
+                          style: ButtonStyle(
+                            shape: WidgetStateProperty.all(
+                              RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)),
+                            ),
+                            backgroundColor:
+                            WidgetStateProperty.all(controller.isenable ? Colors.white : Color(-15441250)),
+                            padding: WidgetStateProperty.all(EdgeInsets.zero),
                           ),
-                          backgroundColor:
-                          WidgetStateProperty.all(controller.isenable ? Colors.white : Color(-15441250)),
-                          padding: WidgetStateProperty.all(EdgeInsets.zero),
-                        ),
-                        child: Image.asset(
-                          color: controller.isenable ? const Color(-15441250) : Colors.white,
-                          "assets/filter.png",
-                          height: screenSize.width * 0.06,
-                          width: screenSize.width * 0.06,
-                          fit: BoxFit.fill,
-                        ),
-                        onPressed: () {
+                          child: Image.asset(
+                            color: controller.isenable ? const Color(-15441250) : Colors.white,
+                            "assets/filter.png",
+                            height: screenSize.width * 0.06,
+                            width: screenSize.width * 0.06,
+                            fit: BoxFit.fill,
+                          ),
+                          onPressed: () {
                             controller.changeEnable();
-                        },
-                      ),
+                          },
+                        ),
                       ),
                     ),
                     SizedBox(width: screenSize.width * 0.05),
@@ -118,17 +104,17 @@ class Homepage extends StatelessWidget {
                 ),
               ),
               SizedBox(height: screenSize.height * 0.01),
-              Expanded(
+              Obx(() => controller.isLoading.value
+                  ? Center(child: CircularProgressIndicator())
+                  : Expanded(
                 child: ListView.builder(
-                  itemCount: appointments.length,
+                  itemCount: controller.appointments.length,
                   itemBuilder: (context, index) {
-                    final appointment = appointments[index];
+                    final appointment = controller.appointments[index];
                     return Padding(
-                      padding: EdgeInsets.only(
-                          left: screenSize.width * 0.02,
-                          right: screenSize.width * 0.02,
-                          top: screenSize.height * 0.005,
-                          bottom: screenSize.height * 0.005
+                      padding: EdgeInsets.symmetric(
+                          horizontal: screenSize.width * 0.02,
+                          vertical: screenSize.height * 0.005
                       ),
                       child: Card(
                         child: Row(
@@ -138,50 +124,50 @@ class Homepage extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Text(
-                                  appointment['name']!,
-                                  style: TextStyle(color: Colors.black, fontSize: screenSize.height * 0.02),
-                                  textDirection: TextDirection.rtl,
+                                  appointment.doctorName,
+                                  style: TextStyle(
+                                      fontSize: screenSize.height * 0.02
+                                  ),
                                 ),
                                 SizedBox(height: screenSize.height * 0.005),
                                 Text(
-                                  appointment['clinic']!,
-                                  style: TextStyle(color: const Color(-7763575),fontSize: screenSize.height * 0.02),
-                                  textDirection: TextDirection.rtl,
+                                  appointment.clinicName,
+                                  style: TextStyle(
+                                      color: const Color(-7763575),
+                                      fontSize: screenSize.height * 0.02
+                                  ),
                                 ),
                                 SizedBox(height: screenSize.height * 0.005),
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Text(
-                                      appointment['date']!,
-                                      style: TextStyle(color: const Color(-13280354),fontSize: screenSize.height * 0.017),
-                                      textDirection: TextDirection.rtl,
+                                      appointment.date,
+                                      style: TextStyle(
+                                          color: const Color(-13280354),
+                                          fontSize: screenSize.height * 0.017
+                                      ),
                                     ),
-                                    SizedBox(width: screenSize.width * 0.005),
-                                    Icon(
-                                      Icons.access_time_filled,
-                                      color: const Color(-13280354),
-                                      size: screenSize.height * 0.016,
-                                    ),
+                                    Icon(Icons.access_time_filled),
                                   ],
                                 ),
                               ],
                             ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Image.asset(
-                                appointment['image']!,
-                                height: screenSize.height * 0.1,
-                                width: screenSize.height * 0.1,
-                              ),
-                            ),
+                            appointment.image != null
+                                ? Image.network(
+                              appointment.image!,
+                              height: screenSize.height * 0.1,
+                              width: screenSize.height * 0.1,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Image.asset('assets/doctor_placeholder.png'),
+                            )
+                                : Image.asset('assets/doctor_placeholder.png'),
                           ],
                         ),
                       ),
                     );
                   },
                 ),
+              ),
               ),
             ],
           ),
@@ -238,9 +224,9 @@ class Homepage extends StatelessWidget {
                                   );
                                 }).toList(),
                                 onChanged: (value) {
-                                  
-                                    controller.changevalueofoption1(value);
-                              
+
+                                  controller.changevalueofoption1(value);
+
                                 },
                               ),
                             ),
