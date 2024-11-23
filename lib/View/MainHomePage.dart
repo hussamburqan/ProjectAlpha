@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
+import 'package:projectalpha/View/NClinicPage.dart';
+import 'package:projectalpha/View/NotificationPage.dart';
 import 'package:projectalpha/component/MyNavBar.dart';
 import 'package:projectalpha/controller/navbar_controller.dart';
-import 'package:projectalpha/view/HomePage/HomePage.dart';
-import 'package:projectalpha/view/setting/settingpage.dart';
-
+import 'package:projectalpha/view/HomePage.dart';
+import 'package:projectalpha/view/SettingPage.dart';
+import 'package:get/get.dart';
 
 class MainHomepage extends StatefulWidget {
   const MainHomepage({super.key});
@@ -14,7 +16,6 @@ class MainHomepage extends StatefulWidget {
 }
 
 class _MainHomepageState extends State<MainHomepage> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,9 +27,9 @@ class _MainHomepageState extends State<MainHomepage> {
             controller.pagenumber == 0 
             ? "الصفحة الرئيسية"
             : controller.pagenumber == 1
-            ? ''
+            ? 'الاشعارات'
             : controller.pagenumber == 2
-            ? ''
+            ? 'العيادات'
             : controller.pagenumber == 3
             ? 'الاعدادات'
             : '',
@@ -45,15 +46,13 @@ class _MainHomepageState extends State<MainHomepage> {
             controller.pagenumber == 0
             ? Homepage()
             : controller.pagenumber == 1
-            ? Homepage()
+            ? NotificationsPage()
             : controller.pagenumber == 2
-            ? Homepage()
+            ? ClinicListPage()
             : controller.pagenumber == 3
-            ? const Settingpage()
+            ? Settingpage()
             : const Placeholder()
-          
           ),
-
 
           const MyNavBar()
         ],

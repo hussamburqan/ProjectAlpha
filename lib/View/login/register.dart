@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:projectalpha/Controller/authcontroller.dart';
+import 'package:projectalpha/Controller/patient_controller.dart';
 import 'package:projectalpha/services/dio_helper.dart';
 
 
@@ -44,7 +46,7 @@ class _RegFormState extends State<RegForm> {
   }
 
   Future<void> register() async {
-
+    // Validate inputs
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -56,11 +58,6 @@ class _RegFormState extends State<RegForm> {
 
     if (emailController.text.isEmpty) {
       Get.snackbar('خطأ', 'يرجى إدخال البريد الإلكتروني');
-      return;
-    }
-
-    if (addressController.text.isEmpty) {
-      Get.snackbar('خطأ', 'يرجى إدخال العنوان');
       return;
     }
 
@@ -100,34 +97,34 @@ class _RegFormState extends State<RegForm> {
       Get.snackbar('خطأ', 'يرجى اختيار الجنس');
       return;
     }
+
     if (selectedBloodType == null) {
       Get.snackbar('خطأ', 'يرجى اختيار فصيلة الدم');
       return;
     }
+
     setState(() => isLoading = true);
     try {
-      final response = await DioHelper.postData(
-        url: 'users/register',
-        data: {
-          'name': '${firstNameController.text} ${lastNameController.text}',
-          'email': emailController.text,
-          'password': passwordController.text,
-          'address': 'null',
-          'age': calculateAge(selectedYear!, selectedMonth!, selectedDay!),
-          'gender': selectedGender == 'ذكر' ? 'male' : 'female',
-          'blood_type': 'A+',
-        },
-      );
+      final userData = {
+        'name': '${firstNameController.text} ${lastNameController.text}',
+        'email': emailController.text,
+        'password': passwordController.text,
+        'password_confirmation': confirmPasswordController.text,
+        'address': addressController.text,
+        'phone': '1234567890', // بيانات الهاتف
+        'age': calculateAge(selectedYear!, selectedMonth!, selectedDay!),
+        'gender': selectedGender == 'ذكر' ? 'male' : 'female',
+        'blood_type': selectedBloodType,
+      };
 
-      if (response.data['status']) {
-        Get.offNamed('/login');
-      } else {
-        Get.snackbar('خطأ', response.data['message']);
-      }
+      final authController = Get.find<AuthController>();
+      await authController.registerUserAndPatient(userData);
     } catch (e) {
-      Get.snackbar('خطأ', 'حدث خطأ في إنشاء الحساب');
+      Get.snackbar('خطأ', 'حدث خطأ أثناء تسجيل الحساب: $e',
+          backgroundColor: Colors.red, colorText: Colors.white);
+    } finally {
+      setState(() => isLoading = false);
     }
-    setState(() => isLoading = false);
   }
 
   @override

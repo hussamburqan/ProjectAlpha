@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:projectalpha/services/data.dart';
-import 'package:projectalpha/services/dio_helper.dart';
+import 'package:projectalpha/Controller/authcontroller.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -14,6 +13,7 @@ class _LoginPageState extends State<LoginPage> {
 
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final authController = Get.put(AuthController());
 
   bool isLoading = false;
   Future<void> login() async {
@@ -33,38 +33,27 @@ class _LoginPageState extends State<LoginPage> {
       Get.snackbar('خطأ', 'يرجى إدخال كلمة المرور');
       return;
     }
+    setState(() {
+      isLoading = true;
+    });
 
-    setState(() => isLoading = true);
     try {
-
-      final response = await DioHelper.postData(
-        url: 'users/login',
-        data: {
-          'email': emailController.text,
-          'password': passwordController.text,
-        },
-      );
-
-      if (response.data['status']) {
-        await HiveHelper.saveUserData(response.data);
-        Get.offNamed('/mainhome');
-      } else {
-        Get.snackbar('خطأ', response.data['message']);
-      }
-    } catch (e) {
-      print(e);
-      Get.snackbar('خطأ', 'حدث خطأ في تسجيل الدخول');
+      await authController.login(emailController.text, passwordController.text);
+    } catch (error) {
+      Get.snackbar('خطأ', 'حدث خطأ أثناء تسجيل الدخول');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
-    setState(() => isLoading = false);
   }
 
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
 
-
     return Scaffold(
-      backgroundColor: Color(-15702880),
+      backgroundColor: Color(-15441249),
       body: Stack(
         children: [
           SvgPicture.asset(

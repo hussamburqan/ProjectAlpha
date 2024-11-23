@@ -1,25 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get/instance_manager.dart';
 import 'package:get/route_manager.dart';
+import 'package:projectalpha/Controller/authcontroller.dart';
 import 'package:projectalpha/Controller/home_controller.dart';
+import 'package:projectalpha/View/NClinicPage.dart';
+import 'package:projectalpha/View/NotificationPage.dart';
+import 'package:projectalpha/View/login/login.dart';
+import 'package:projectalpha/View/login/logopage.dart';
+import 'package:projectalpha/View/login/register.dart';
 import 'package:projectalpha/controller/filter_controller.dart';
 import 'package:projectalpha/controller/navbar_controller.dart';
-import 'package:projectalpha/login/register.dart';
-import 'package:projectalpha/services/data.dart';
 import 'package:projectalpha/services/dio_helper.dart';
-import 'package:projectalpha/view/HomePage/HomePage.dart';
-import 'package:projectalpha/view/HomePage/MainHomePage.dart';
-import 'package:projectalpha/login/login.dart';
+import 'package:projectalpha/view/HomePage.dart';
+import 'package:projectalpha/view/MainHomePage.dart';
 import 'package:projectalpha/theme/themes.dart';
-import 'package:projectalpha/view/setting/settingpage.dart';
+import 'package:projectalpha/view/SettingPage.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  DioHelper.init();
+
+  final authController = Get.put(AuthController());
+  await authController.initHive();
+
+  Get.put(HomeController());
   Get.put(Navbarcontroller());
   Get.put(Filtercontroller());
-  Get.put(HomeController());
-  DioHelper.init();
-  await HiveHelper.init();
-  runApp(const MyApp());
+
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -27,18 +36,22 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       theme: AppTheme.theme,
-      initialRoute: '/login',
+
+      home: SplashScreen(),
       getPages: [
-        GetPage(name: "/login", page: () => LoginPage()),  
-        GetPage(name: "/reg", page: () => RegForm()),  
-        GetPage(name: "/mainhome", page: () => MainHomepage()),  
-        GetPage(name: "/home", page: () => Homepage()),       
+        GetPage(name: "/login", page: () => LoginPage()),
+        GetPage(name: "/splach", page: () => SplashScreen()),
+        GetPage(name: "/reg", page: () => RegForm()),
+        GetPage(name: "/mainhome", page: () => MainHomepage()),
+        GetPage(name: "/home", page: () => Homepage()),
         GetPage(name: "/setting", page: () => Settingpage()),
-        ],
+        GetPage(name: "/nclinic", page: () => ClinicListPage()),
+        GetPage(name: "/notification", page: () => NotificationsPage()),
+      ],
     );
   }
 }
-
