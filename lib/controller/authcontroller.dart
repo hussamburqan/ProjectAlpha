@@ -19,14 +19,21 @@ class AuthController extends GetxController {
 
   Future<void> initHive() async {
     try {
-      await Hive.initFlutter();
-      authBox = await Hive.openBox('auth');
+      if (!Hive.isBoxOpen('auth')) {
+        authBox = await Hive.openBox('auth');
+        print('Hive box "auth" opened.');
+      } else {
+        authBox = Hive.box('auth');
+        print('Hive box "auth" already open.');
+      }
       await checkLoginStatus();
       isInitialized.value = true;
     } catch (e) {
       print('Error initializing Hive: $e');
+      rethrow;
     }
   }
+
 
   Future<void> checkLoginStatus() async {
     final token = getToken();
@@ -46,14 +53,13 @@ class AuthController extends GetxController {
       );
 
       if (response.data['status']) {
-        await saveUserData(response.data);
-        currentUser.value = User.fromJson(response.data['data']);
-
-        if (response.data['data']['patient'] != null) {
-          final patientData = response.data['data']['patient'];
-          await authBox.put('patient_data', patientData['id']);
-          currentPatient.value = Patient.fromJson(patientData);
+        print('Login successful. Saving user data...');
+        if(response.data['data']['doctor'] != null){
+          saveUserDataDoctor(response.data);
+        }else if (response.data['data']['patient'] != null){
+          saveUserDataPatient(response.data);
         }
+        print('Token after login: ${getToken()}');
 
         Get.offAllNamed('/mainhome');
       } else {
@@ -67,8 +73,8 @@ class AuthController extends GetxController {
   Future<void> logout() async {
     try {
       await DioHelper.postData(
-          url: 'logout',
-          customToken: getToken()
+        url: 'logout',
+        token: getToken(),
       );
     } catch (e) {
       print("Logout failed: $e");
@@ -80,52 +86,26 @@ class AuthController extends GetxController {
     }
   }
 
-  Future<void> registerUserAndPatient(Map<String, dynamic> userData) async {
-    try {
-      final response = await DioHelper.postData(
-        url: 'register',
-        data: userData,
-      );
 
-      if (response.data['status']) {
-        await saveUserData(response.data);
-        currentUser.value = User.fromJson(response.data['data']);
-
-        await createPatient(response.data['data']['id'],response.data['data']['name'],response.data['data']['phone']);
-
-        Get.offAllNamed('/mainhome');
-        Get.snackbar('نجاح', 'تم تسجيل الحساب وإنشاء المريض بنجاح');
-      } else {
-        Get.snackbar('خطأ', response.data['message']);
-      }
-    } catch (e) {
-      Get.snackbar('خطأ', 'حدث خطأ أثناء التسجيل: $e');
-    }
-  }
-
-  Future<void> createPatient(int userId,String name,String phone) async {
+  Future<void> createPatient(Map<String, dynamic> userData) async {
     try {
       final response = await DioHelper.postData(
         url: 'patients',
-        data: {
-          'user_id': userId,
-          "emergency_contact": name,
-          "emergency_phone": phone,
-          "medical_history": "No major issues",
-          "allergies": "None",
-          "current_medications": "None",
-          "medical_recommendations": "Regular checkups",
-        },
+        data: userData,
       );
 
       if (response.statusCode == 201) {
-        currentPatient.value = Patient.fromJson(response.data['data']);
-        await authBox.put('patient_data', response.data['data']['id']);
-      } else {
+
+        await saveUserDataPatient(response.data);
+
+        Get.offAllNamed('/mainhome');
+        Get.snackbar('نجاح', 'تم تسجيل حساب المريض بنجاح');
+
+        } else {
         Get.snackbar('خطأ', 'حدث خطأ أثناء إنشاء حساب المريض');
       }
     } catch (e) {
-      Get.snackbar('خطأ', 'حدث خطأ أثناء إنشاء المريض: $e');
+      Get.snackbar('خطأ', '$e');
     }
   }
 
@@ -143,11 +123,24 @@ class AuthController extends GetxController {
     }
   }
 
-  Future<void> saveUserData(Map<String, dynamic> data) async {
-    await authBox.put('user_data', data['data']);
-    await authBox.put('patient_data', data['data']['patient']);
-    await authBox.put('token', data['access_token']);
-    DioHelper.token = data['access_token'];
+  Future<void> saveUserDataPatient(Map<String, dynamic> data) async {
+    final userData = data['data'];
+    await authBox.putAll({
+      'user_data':userData['user']['id'],
+      'patient_id': userData['id'],
+      'token': data['access_token']
+    });
+    DioHelper.setToken(data['access_token']);
+  }
+
+  Future<void> saveUserDataDoctor(Map<String, dynamic> data) async {
+    final userData = data['data'];
+    await authBox.putAll({
+      'user_data': userData['id'],
+      'doctor_id': userData['doctor']['id'],
+      'token': data['access_token']
+    });
+    DioHelper.setToken(data['access_token']);
   }
 
   Future<void> clearUserData() async {
@@ -159,15 +152,11 @@ class AuthController extends GetxController {
     return authBox.get('token');
   }
 
-  int? getPatient() {
-    return authBox.get('patient_data');
-  }
-
-  Map<String, dynamic>? getUserFromStorage() {
+  String? getUserid() {
     return authBox.get('user_data');
   }
 
-  Map<String, dynamic>? getPatientFromStorage() {
-    return authBox.get('patient_data');
+  String? getPatientId() {
+    return authBox.get('patient_id');
   }
 }

@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:projectalpha/Controller/authcontroller.dart';
 import 'package:projectalpha/services/constants.dart';
@@ -341,7 +340,7 @@ class _DoctorBookingPageState extends State<DoctorBookingPage> {
     try {
       final formattedDate = DateFormat('yyyy-MM-dd').format(_selectedDay);
       final formattedTime = _selectedTime?.split(' ')[0];
-      final patientId = authController.getPatient();
+      final patientId = authController.getPatientId();
 
       if (patientId == null) {
         Get.snackbar(

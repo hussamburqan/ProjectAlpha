@@ -1,44 +1,53 @@
 import 'package:projectalpha/models/doctor_model.dart';
+import 'package:projectalpha/models/major_model.dart';
+import 'package:projectalpha/models/user_model.dart';
 
-class NClinic {
+class Clinic {
   final int id;
-  final String name;
+  final int userId;
+  final int majorId;
   final String location;
+  final String? photo;
+  final String? coverPhoto;
   final String description;
   final String openingTime;
   final String closingTime;
-  final String status;
-  final String? photo;
-  final String? major;
+  final User user;
+  final Major major;
+  final int doctorsCount;
   final List<Doctor> doctors;
 
-  NClinic({
+  Clinic({
     required this.id,
-    required this.name,
+    required this.userId,
+    required this.majorId,
     required this.location,
+    this.photo,
+    this.coverPhoto,
     required this.description,
     required this.openingTime,
     required this.closingTime,
-    required this.status,
+    required this.user,
     required this.major,
-    this.photo,
+    required this.doctorsCount,
     required this.doctors,
   });
 
-  factory NClinic.fromJson(Map<String, dynamic> json) {
-    return NClinic(
+  factory Clinic.fromJson(Map<String, dynamic> json) {
+    return Clinic(
       id: json['id'],
-      name: json['name'],
+      userId: json['user_id'],
+      majorId: json['major_id'],
       location: json['location'],
+      photo: json['photo'],
+      coverPhoto: json['cover_photo'],
       description: json['description'],
       openingTime: json['opening_time'],
       closingTime: json['closing_time'],
-      status: json['status'],
-      major: json['major']['name'],
-      photo: json['photo'],
-      doctors: (json['doctors'] as List)
-          .map((doctorJson) => Doctor.fromJson(doctorJson))
-          .toList(),
+      user: User.fromJson(json['user']),
+      major: Major.fromJson(json['major']),
+      doctorsCount: json['doctors_count'],
+      doctors: (json['doctors'] as List).map((d) => Doctor.fromJson(d)).toList(),
     );
   }
 }

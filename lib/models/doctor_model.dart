@@ -1,34 +1,40 @@
 class Doctor {
   final int id;
-  final String specialization;
-  final String name;
-  final String education;
-  final String bio;
-  final String? photo;
+  final int userId;
   final int experienceYears;
-  final double consultationFee;
+  final String specialization;
+  final String education;
+  final String? photo;
+  final String startWorkTime;
+  final String endWorkTime;
+  final int defaultTimeReservations;
+  final String bio;
 
   Doctor({
     required this.id,
+    required this.userId,
+    required this.experienceYears,
     required this.specialization,
     required this.education,
-    required this.name,
-    required this.bio,
     this.photo,
-    required this.experienceYears,
-    required this.consultationFee,
+    required this.startWorkTime,
+    required this.endWorkTime,
+    required this.defaultTimeReservations,
+    required this.bio,
   });
 
   factory Doctor.fromJson(Map<String, dynamic> json) {
     return Doctor(
       id: json['id'],
-      name: json['name'],
+      userId: json['user']['id'],
+      experienceYears: json['experience_years'],
       specialization: json['specialization'],
       education: json['education'],
-      bio: json['bio'],
       photo: json['photo'],
-      experienceYears: json['experience_years'],
-      consultationFee: double.tryParse(json['consultation_fee'] ?? '0') ?? 0.0,
+      startWorkTime: json['start_work_time'],
+      endWorkTime: json['end_work_time'],
+      defaultTimeReservations: json['default_time_reservations'],
+      bio: json['bio'],
     );
   }
 }

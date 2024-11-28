@@ -43,6 +43,7 @@ dependencies:
   hive_flutter: ^1.1.0
   table_calendar: ^3.0.9
   easy_splash_screen: ^1.0.4
+  image_picker: ^0.8.7
 
 dev_dependencies:
   flutter_test:
@@ -70,14 +71,11 @@ flutter:
     - assets/logo.svg
     - assets/circle1.svg
     - assets/circle2.svg
-    - assets/test1.png
     - assets/filter.png
     - assets/home.png
     - assets/setting.png
     - assets/something.png
     - assets/Notices.png
-    - assets/doctor1.png
-    - assets/doctor2.png
     - assets/key.svg
     - assets/layer 2.svg
     - assets/library.svg
@@ -88,7 +86,9 @@ flutter:
     - assets/type.svg
     - assets/Cover.png
     - assets/education.svg
-    - assets/doctor_placeholder.jpg
+    - assets/doctor_placeholder.png
+    - assets/petinet.png
+    - assets/clinic.png
 
 
 

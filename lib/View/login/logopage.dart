@@ -32,10 +32,10 @@ class _SplashScreenState extends State<SplashScreen>
     _controller.forward();
 
     Future.delayed(Duration(seconds: 3), () {
-      Get.offAll(() =>
-      authController.isLogged ? MainHomepage() : LoginPage()
-      );
+      print('Is user logged in? ${authController.isLogged}');
+      Get.offAll(() => authController.isLogged ? MainHomepage() : LoginPage());
     });
+
   }
 
   @override
@@ -43,10 +43,9 @@ class _SplashScreenState extends State<SplashScreen>
     final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: Color(-15702880), // نفس لون خلفية تطبيقك
+      backgroundColor: Color(-15702880),
       body: Stack(
         children: [
-          // نفس خلفية تطبيقك
           SvgPicture.asset(
             'assets/circle2.svg',
             color: Color(-15904640),

@@ -2,19 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:projectalpha/Controller/authcontroller.dart';
-import 'package:projectalpha/Controller/patient_controller.dart';
-import 'package:projectalpha/services/dio_helper.dart';
 
-
-
-class RegForm extends StatefulWidget {
-  const RegForm();
+class RegFormP extends StatefulWidget {
+  const RegFormP();
 
   @override
-  _RegFormState createState() => _RegFormState();
+  _RegFormPState createState() => _RegFormPState();
 }
 
-class _RegFormState extends State<RegForm> {
+class _RegFormPState extends State<RegFormP> {
 
   int? selectedDay;
   String? selectedMonth;
@@ -46,7 +42,6 @@ class _RegFormState extends State<RegForm> {
   }
 
   Future<void> register() async {
-    // Validate inputs
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -111,14 +106,18 @@ class _RegFormState extends State<RegForm> {
         'password': passwordController.text,
         'password_confirmation': confirmPasswordController.text,
         'address': addressController.text,
-        'phone': '1234567890', // بيانات الهاتف
+        'phone': '1234567890',
         'age': calculateAge(selectedYear!, selectedMonth!, selectedDay!),
         'gender': selectedGender == 'ذكر' ? 'male' : 'female',
         'blood_type': selectedBloodType,
+        'medical_history': 'No major issues',
+        'medical_recommendations': 'Regular checkups',
+        'current_medications': 'None',
+        'allergies': 'None',
       };
 
       final authController = Get.find<AuthController>();
-      await authController.registerUserAndPatient(userData);
+      await authController.createPatient(userData);
     } catch (e) {
       Get.snackbar('خطأ', 'حدث خطأ أثناء تسجيل الحساب: $e',
           backgroundColor: Colors.red, colorText: Colors.white);

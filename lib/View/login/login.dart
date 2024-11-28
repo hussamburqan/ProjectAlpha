@@ -230,7 +230,7 @@ class _LoginPageState extends State<LoginPage> {
                             width: double.infinity,
                             child: ElevatedButton(
                               onPressed: () {
-                                Get.toNamed('/reg');
+                                Get.toNamed('/typereg');
                               },
                               style: ElevatedButton.styleFrom(
                                 padding: EdgeInsets.all(15),

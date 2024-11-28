@@ -5,7 +5,6 @@ import 'package:projectalpha/Controller/home_controller.dart';
 import 'package:projectalpha/View/news_details_page.dart';
 import 'package:projectalpha/component/MyImage.dart';
 import 'package:projectalpha/controller/filter_controller.dart';
-import 'package:projectalpha/models/appointment_model.dart';
 import 'package:projectalpha/services/constants.dart';
 
 class Homepage extends GetView<HomeController> {
@@ -16,7 +15,7 @@ class Homepage extends GetView<HomeController> {
 
     final screenSize = MediaQuery.of(context).size;
     controller.getNews();
-    controller.getAppointments();
+   // controller.getAppointments();
     return Stack(
       children: [
         Column(
@@ -26,7 +25,7 @@ class Homepage extends GetView<HomeController> {
             _buildCarousel(screenSize),
             SizedBox(height: screenSize.height * 0.03),
             const Text('المواعيد القادمة',style: TextStyle(fontSize: 20)),
-            _buildAppointmentList(controller,screenSize),
+            // _buildAppointmentList(controller,screenSize),
             SizedBox(height: screenSize.height * 0.1),
 
           ],
@@ -155,112 +154,111 @@ class Homepage extends GetView<HomeController> {
     );
   }
 
-  Widget _buildAppointmentList(HomeController controller, Size screenSize) {
-    return Obx(() {
-      if (controller.isLoadingA.value) {
-        return Center(child: CircularProgressIndicator());
-      }
-
-      // ترتيب المواعيد حسب الأقرب تاريخًا ووقتًا
-      final filteredAppointments = controller.appointments
-          .where((appointment) =>
-      appointment.status != 'canceled' && appointment.status != 'completed')
-          .toList()
-        ..sort((a, b) {
-          final dateTimeA = DateTime.parse('${a.date} ${a.time}');
-          final dateTimeB = DateTime.parse('${b.date} ${b.time}');
-          return dateTimeA.compareTo(dateTimeB);
-        });
-
-      if (filteredAppointments.isEmpty) {
-        return Center(child: Text('لا توجد مواعيد قادمة.'));
-      }
-
-      return Expanded(
-        child: ListView.builder(
-          itemCount: filteredAppointments.length,
-          itemBuilder: (context, index) {
-            return _buildAppointmentCard(filteredAppointments[index], screenSize);
-          },
-        ),
-      );
-    });
-  }
-
-  Widget _buildAppointmentCard(Appointment appointment, Size screenSize) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: screenSize.width * 0.02,
-        vertical: screenSize.height * 0.005,
-      ),
-      child: Card(
-        color: Color(-789517),
-        elevation: 6,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.all(screenSize.width * 0.02),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    // اسم الطبيب
-                    Text(
-                      appointment.doctorName,
-                      style: TextStyle(
-                        fontSize: screenSize.height * 0.02,
-                      ),
-                    ),
-                    SizedBox(height: screenSize.height * 0.005),
-                    // اسم العيادة
-                    Text(
-                      appointment.clinicName,
-                      style: TextStyle(
-                        color: const Color(-7763575),
-                        fontSize: screenSize.height * 0.02,
-                      ),
-                    ),
-                    SizedBox(height: screenSize.height * 0.005),
-                    // التاريخ والوقت
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          '${appointment.date} - ${appointment.time}',
-                          style: TextStyle(
-                            color: const Color(-13280354),
-                            fontSize: screenSize.height * 0.017,
-                          ),
-                        ),
-                        SizedBox(width: screenSize.width * 0.005),
-                        Icon(
-                          Icons.access_time_filled,
-                          color: Color(-13280354),
-                          size: screenSize.height * 0.025,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            if (appointment.image != null)
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: MyImageNet(
-                  path: '${AppConstants.baseURLPhoto}storage/${appointment.image}',
-                  sizeh: screenSize.height,
-                ),
-              )
-            else
-              Image.asset('assets/doctor_placeholder.jpg'),
-          ],
-        ),
-      ),
-    );
-  }
+  // Widget _buildAppointmentList(HomeController controller, Size screenSize) {
+  //   return Obx(() {
+  //     if (controller.isLoadingA.value) {
+  //       return Center(child: CircularProgressIndicator());
+  //     }
+  //
+  //     final filteredAppointments = controller.appointments
+  //         .where((appointment) =>
+  //     appointment.status != 'canceled' && appointment.status != 'completed')
+  //         .toList()
+  //       ..sort((a, b) {
+  //         final dateTimeA = DateTime.parse('${a.date} ${a.time}');
+  //         final dateTimeB = DateTime.parse('${b.date} ${b.time}');
+  //         return dateTimeA.compareTo(dateTimeB);
+  //       });
+  //
+  //     if (filteredAppointments.isEmpty) {
+  //       return Center(child: Text('لا توجد مواعيد قادمة.'));
+  //     }
+  //
+  //     return Expanded(
+  //       child: ListView.builder(
+  //         itemCount: filteredAppointments.length,
+  //         itemBuilder: (context, index) {
+  //           return _buildAppointmentCard(filteredAppointments[index], screenSize);
+  //         },
+  //       ),
+  //     );
+  //   });
+  // }
+  //
+  // Widget _buildAppointmentCard(Appointment appointment, Size screenSize) {
+  //   return Padding(
+  //     padding: EdgeInsets.symmetric(
+  //       horizontal: screenSize.width * 0.02,
+  //       vertical: screenSize.height * 0.005,
+  //     ),
+  //     child: Card(
+  //       color: Color(-789517),
+  //       elevation: 6,
+  //       child: Row(
+  //         mainAxisAlignment: MainAxisAlignment.end,
+  //         children: [
+  //           Expanded(
+  //             child: Padding(
+  //               padding: EdgeInsets.all(screenSize.width * 0.02),
+  //               child: Column(
+  //                 crossAxisAlignment: CrossAxisAlignment.end,
+  //                 children: [
+  //                   // اسم الطبيب
+  //                   Text(
+  //                     appointment.doctorName,
+  //                     style: TextStyle(
+  //                       fontSize: screenSize.height * 0.02,
+  //                     ),
+  //                   ),
+  //                   SizedBox(height: screenSize.height * 0.005),
+  //                   // اسم العيادة
+  //                   Text(
+  //                     appointment.clinicName,
+  //                     style: TextStyle(
+  //                       color: const Color(-7763575),
+  //                       fontSize: screenSize.height * 0.02,
+  //                     ),
+  //                   ),
+  //                   SizedBox(height: screenSize.height * 0.005),
+  //                   // التاريخ والوقت
+  //                   Row(
+  //                     crossAxisAlignment: CrossAxisAlignment.center,
+  //                     mainAxisAlignment: MainAxisAlignment.end,
+  //                     children: [
+  //                       Text(
+  //                         '${appointment.date} - ${appointment.time}',
+  //                         style: TextStyle(
+  //                           color: const Color(-13280354),
+  //                           fontSize: screenSize.height * 0.017,
+  //                         ),
+  //                       ),
+  //                       SizedBox(width: screenSize.width * 0.005),
+  //                       Icon(
+  //                         Icons.access_time_filled,
+  //                         color: Color(-13280354),
+  //                         size: screenSize.height * 0.025,
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //           ),
+  //           if (appointment.image != null)
+  //             Padding(
+  //               padding: const EdgeInsets.all(8.0),
+  //               child: MyImageNet(
+  //                 path: '${AppConstants.baseURLPhoto}storage/${appointment.image}',
+  //                 sizeh: screenSize.height,
+  //               ),
+  //             )
+  //           else
+  //             Image.asset('assets/doctor_placeholder.jpg'),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _buildFilterCard(Size screenSize) {
     return GetBuilder<Filtercontroller>(

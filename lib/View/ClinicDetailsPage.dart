@@ -7,7 +7,7 @@ import 'package:projectalpha/models/nclinics_model.dart';
 import 'package:projectalpha/services/constants.dart';
 
 class ClinicDetailsPage extends StatelessWidget {
-  final NClinic clinic;
+  final Clinic clinic;
 
   const ClinicDetailsPage({Key? key, required this.clinic}) : super(key: key);
 
@@ -50,7 +50,7 @@ class ClinicDetailsPage extends StatelessWidget {
                           children: [
                             SizedBox(height: 16),
                             Text(
-                              clinic.name,
+                              clinic.user.name,
                               style: TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold
@@ -306,7 +306,7 @@ class ClinicDetailsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoCards(NClinic clinic, Size screenSize) {
+  Widget _buildInfoCards(Clinic clinic, Size screenSize) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -317,7 +317,7 @@ class ClinicDetailsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildTimeCard(NClinic clinic, Size screenSize) {
+  Widget _buildTimeCard(Clinic clinic, Size screenSize) {
     return Card(
       color: Color(-13280354),
       child: Padding(
@@ -347,7 +347,7 @@ class ClinicDetailsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildMajorCard(NClinic clinic, Size screenSize) {
+  Widget _buildMajorCard(Clinic clinic, Size screenSize) {
     return Card(
       color: Color(-9070680),
       child: Padding(
@@ -358,7 +358,7 @@ class ClinicDetailsPage extends StatelessWidget {
         child: Row(
           children: [
             Text(
-              clinic.major!,
+              clinic.major.name,
               style: TextStyle(
                 color: Colors.white,
                 fontSize: screenSize.height * 0.012,
@@ -375,7 +375,7 @@ class ClinicDetailsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildLocationCard(NClinic clinic, Size screenSize) {
+  Widget _buildLocationCard(Clinic clinic, Size screenSize) {
     return Card(
       color: Color(-6197065),
       child: Padding(

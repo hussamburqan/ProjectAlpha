@@ -12,12 +12,16 @@ class User {
   final String email;
 
   @HiveField(3)
+  final String phone;
+
+  @HiveField(4)
   final Patient? patient;
 
   User({
     required this.id,
     required this.name,
     required this.email,
+    required this.phone,
     this.patient,
   });
 
@@ -26,6 +30,7 @@ class User {
       id: json['id'],
       name: json['name'],
       email: json['email'],
+      phone: json['phone'],
       patient: json['patient'] != null ? Patient.fromJson(json['patient']) : null,
     );
   }

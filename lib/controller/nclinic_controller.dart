@@ -4,7 +4,7 @@ import 'package:projectalpha/services/dio_helper.dart';
 
 class ClinicController extends GetxController {
   RxBool isLoading = true.obs;
-  RxList<NClinic> clinics = <NClinic>[].obs;
+  RxList<Clinic> clinics = <Clinic>[].obs;
   RxString errorMessage = ''.obs;
 
   @override
@@ -19,9 +19,9 @@ class ClinicController extends GetxController {
       final response = await DioHelper.getData(url: 'clinics');
 
       if (response.data['status'] == true) {
-        final List clinicData = response.data['data']['data'];
+        final List clinicData = response.data['data'];
 
-        clinics.value = clinicData.map((json) => NClinic.fromJson(json)).toList();
+        clinics.value = clinicData.map((json) => Clinic.fromJson(json)).toList();
       } else {
         errorMessage.value = 'Error fetching clinics';
       }
