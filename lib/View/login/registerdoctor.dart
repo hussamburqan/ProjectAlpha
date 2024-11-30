@@ -202,24 +202,28 @@ class _DoctorRegisterPageState extends State<DoctorRegisterPage> {
     final formattedEndTime = formatTimeToString(endWorkTime!);
 
     await controller.registerDoctor(
-      name: "${firstNameController.text} ${lastNameController.text}",
-      email: emailController.text,
-      password: passwordController.text,
-      address: addressController.text,
-      phone: phoneController.text,
-      age: 30,
-      gender: selectedGender == 'ذكر' ? 'male' : 'female',
-      experienceYears: experienceYears!,
-      specialization: specializationController.text,
-      education: educationController.text,
-      bio: bioController.text,
-      majorId: selectedMajor!,
-      clinicId: selectedClinic!,
+      formDataMap: {
+        'name': "${firstNameController.text} ${lastNameController.text}",
+        'email': emailController.text,
+        'password': passwordController.text,
+        'password_confirmation': passwordController.text,
+        'address': addressController.text,
+        'phone': phoneController.text,
+        'age': 30,
+        'gender': selectedGender == 'ذكر' ? 'male' : 'female',
+        'experience_years': experienceYears!,
+        'specialization': specializationController.text,
+        'education': educationController.text,
+        'bio': bioController.text,
+        'major_id': selectedMajor!,
+        'nclinic_id': selectedClinic!,
+        'start_work_time': formattedStartTime,
+        'end_work_time': formattedEndTime,
+        'default_time_reservations': defaultTimeReservations,
+      },
       photoPath: photoPath!,
-      startWorkTime: formattedStartTime,
-      endWorkTime: formattedEndTime,
-      defaultTimeReservations: defaultTimeReservations,
     );
+
   }
 
   @override

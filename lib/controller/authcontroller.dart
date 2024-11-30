@@ -1,11 +1,13 @@
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:projectalpha/models/doctor_model.dart';
 import '../models/user_model.dart';
 import '../services/dio_helper.dart';
 
 class AuthController extends GetxController {
   final Rx<User?> currentUser = Rx<User?>(null);
   final Rx<Patient?> currentPatient = Rx<Patient?>(null);
+  final Rx<Doctor?> doctorPatient = Rx<Doctor?>(null);
   final RxBool isInitialized = false.obs;
   late Box authBox;
 
@@ -55,13 +57,15 @@ class AuthController extends GetxController {
       if (response.data['status']) {
         print('Login successful. Saving user data...');
         if(response.data['data']['doctor'] != null){
-          saveUserDataDoctor(response.data);
+          Get.offAllNamed('/mainhomedoctor');
+          saveUserDataLogin(response.data);
         }else if (response.data['data']['patient'] != null){
-          saveUserDataPatient(response.data);
-        }
-        print('Token after login: ${getToken()}');
+          Get.offAllNamed('/mainhomepatient');
+          saveUserDataLogin(response.data);
+        }else{
 
-        Get.offAllNamed('/mainhome');
+        }
+
       } else {
         Get.snackbar('خطأ', response.data['message']);
       }
@@ -82,6 +86,7 @@ class AuthController extends GetxController {
       await clearUserData();
       currentUser.value = null;
       currentPatient.value = null;
+      doctorPatient.value = null;
       Get.offAllNamed('/login');
     }
   }
@@ -96,9 +101,11 @@ class AuthController extends GetxController {
 
       if (response.statusCode == 201) {
 
-        await saveUserDataPatient(response.data);
+        print('trest');
+        await saveUserDataReq(response.data,true,false);
+        print('tresat');
 
-        Get.offAllNamed('/mainhome');
+        Get.offAllNamed('/mainhomepatient');
         Get.snackbar('نجاح', 'تم تسجيل حساب المريض بنجاح');
 
         } else {
@@ -116,6 +123,8 @@ class AuthController extends GetxController {
         currentUser.value = User.fromJson(response.data['data']);
         if (response.data['data']['patient'] != null) {
           currentPatient.value = Patient.fromJson(response.data['data']['patient']);
+        }else if(response.data['data']['doctor'] != null){
+          doctorPatient.value = Doctor.fromJson(response.data['data']['doctor']);
         }
       }
     } catch (e) {
@@ -123,23 +132,40 @@ class AuthController extends GetxController {
     }
   }
 
-  Future<void> saveUserDataPatient(Map<String, dynamic> data) async {
+  Future<void> saveUserDataReq(Map<String, dynamic> data,bool patient,bool doctor ) async {
+
     final userData = data['data'];
-    await authBox.putAll({
+    if(patient) {
+      await authBox.putAll({
       'user_data':userData['user']['id'],
       'patient_id': userData['id'],
       'token': data['access_token']
     });
+    } else if (doctor) {
+      await authBox.putAll({
+      'user_data': userData['user']['id'],
+      'doctor_id': userData['id'],
+      'token': data['access_token']
+    });
+    }
     DioHelper.setToken(data['access_token']);
   }
 
-  Future<void> saveUserDataDoctor(Map<String, dynamic> data) async {
+  Future<void> saveUserDataLogin(Map<String, dynamic> data) async {
+
     final userData = data['data'];
-    await authBox.putAll({
+    if(userData['patient'] != null) {
+      await authBox.putAll({
+        'user_data':userData['id'],
+        'patient_id': userData['patient']['id'],
+        'token': data['access_token']
+      });
+    } else if (userData['doctor'] != null) {await authBox.putAll({
       'user_data': userData['id'],
       'doctor_id': userData['doctor']['id'],
       'token': data['access_token']
     });
+    }
     DioHelper.setToken(data['access_token']);
   }
 
@@ -156,7 +182,7 @@ class AuthController extends GetxController {
     return authBox.get('user_data');
   }
 
-  String? getPatientId() {
+  int getPatientId() {
     return authBox.get('patient_id');
   }
 }

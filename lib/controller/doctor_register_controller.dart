@@ -21,12 +21,10 @@ class DoctorRegisterController extends GetxController {
     fetchMajorsAndClinics();
   }
 
-  /// Fetch Majors and Clinics
   Future<void> fetchMajorsAndClinics() async {
     try {
       isLoading.value = true;
 
-      // Fetch majors
       final majorsResponse = await DioHelper.getData(url: 'majors');
       majors.value = List<Map<String, dynamic>>.from(
         majorsResponse.data.map((major) => {
@@ -35,7 +33,6 @@ class DoctorRegisterController extends GetxController {
         }),
       );
 
-      // Fetch clinics
       final clinicsResponse = await DioHelper.getData(url: 'clinics');
       clinics.value = List<Map<String, dynamic>>.from(
         clinicsResponse.data['data'].map((clinic) => {
@@ -51,45 +48,14 @@ class DoctorRegisterController extends GetxController {
   }
 
   Future<void> registerDoctor({
-    required String name,
-    required String email,
-    required String password,
-    required String address,
-    required String phone,
-    required int age,
-    required String gender,
-    required int experienceYears,
-    required String specialization,
-    required String education,
-    required String bio,
-    required int majorId,
-    required int clinicId,
-    required String startWorkTime,
-    required String endWorkTime,
-    required int defaultTimeReservations,
+    required Map<String, dynamic> formDataMap,
     required String photoPath,
   }) async {
     try {
       isLoading.value = true;
 
       final formData = dio.FormData.fromMap({
-        'name': name,
-        'address': address,
-        'age': age,
-        'gender': gender,
-        'email': email,
-        'password': password,
-        'password_confirmation': password,
-        'phone': phone,
-        'experience_years': experienceYears,
-        'specialization': specialization,
-        'start_work_time': startWorkTime,
-        'end_work_time': endWorkTime,
-        'default_time_reservations': defaultTimeReservations,
-        'education': education,
-        'bio': bio,
-        'major_id': majorId,
-        'nclinic_id': clinicId,
+        ...formDataMap,
         'photo': await dio.MultipartFile.fromFile(
           photoPath,
           filename: 'photo.jpg',
@@ -105,9 +71,9 @@ class DoctorRegisterController extends GetxController {
       if (doctorResponse.data['status'] != true) {
         throw doctorResponse.data['message'] ?? 'Doctor registration failed.';
       }
-      authController.saveUserDataDoctor(doctorResponse.data);
 
-      Get.offAllNamed('/mainhome');
+      authController.saveUserDataReq(doctorResponse.data,false,true);
+      Get.offAllNamed('/mainhomedoctor');
       Get.snackbar('Success', 'Doctor account created successfully.');
     } catch (e) {
       Get.snackbar(
@@ -119,4 +85,5 @@ class DoctorRegisterController extends GetxController {
       isLoading.value = false;
     }
   }
+
 }

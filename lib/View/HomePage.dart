@@ -15,7 +15,7 @@ class Homepage extends GetView<HomeController> {
 
     final screenSize = MediaQuery.of(context).size;
     controller.getNews();
-   // controller.getAppointments();
+    controller.getReservations();
     return Stack(
       children: [
         Column(

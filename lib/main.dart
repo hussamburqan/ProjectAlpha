@@ -3,12 +3,13 @@ import 'package:get/get.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:projectalpha/Controller/authcontroller.dart';
 import 'package:projectalpha/Controller/home_controller.dart';
-import 'package:projectalpha/View/Doctor/registerdoctor.dart';
+import 'package:projectalpha/View/Doctor/doctorhome.dart';
 import 'package:projectalpha/View/NClinicPage.dart';
 import 'package:projectalpha/View/NotificationPage.dart';
 import 'package:projectalpha/View/login/login.dart';
 import 'package:projectalpha/View/login/logopage.dart';
-import 'package:projectalpha/View/login/register.dart';
+import 'package:projectalpha/View/login/registerpatient.dart';
+import 'package:projectalpha/View/login/registerdoctor.dart';
 import 'package:projectalpha/View/login/typereg.dart';
 import 'package:projectalpha/controller/filter_controller.dart';
 import 'package:projectalpha/controller/navbar_controller.dart';
@@ -50,7 +51,8 @@ class MyApp extends StatelessWidget {
         GetPage(name: "/splach", page: () => SplashScreen()),
         GetPage(name: "/regp", page: () => RegFormP()),
         GetPage(name: "/regd", page: () => DoctorRegisterPage()),
-        GetPage(name: "/mainhome", page: () => MainHomepage()),
+        GetPage(name: "/mainhomepatient", page: () => MainHomepage()),
+        GetPage(name: "/mainhomedoctor", page: () => MainHomeDoctor()),
         GetPage(name: "/home", page: () => Homepage()),
         GetPage(name: "/setting", page: () => Settingpage()),
         GetPage(name: "/nclinic", page: () => ClinicListPage()),
