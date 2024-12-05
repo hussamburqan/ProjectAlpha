@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:projectalpha/Controller/nclinic_controller.dart';
 import 'package:projectalpha/View/ClinicDetailsPage.dart';
 import 'package:projectalpha/component/MyImage.dart';
+import 'package:projectalpha/services/constants.dart';
 
 class ClinicListPage extends StatelessWidget {
   @override
@@ -120,7 +121,7 @@ class ClinicListPage extends StatelessWidget {
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
                                       Text(
-                                        '${clinic.openingTime} - ${clinic.closingTime}',
+                                        '${clinic.openingTime.substring(0, 5)} - ${clinic.closingTime.substring(0, 5)}',
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: screenSize.height * 0.012,
@@ -146,7 +147,7 @@ class ClinicListPage extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: MyImageNet(
-                            path: clinic.photo!,
+                            path: '${AppConstants.baseURLPhoto}storage/${clinic.photo}',
                             sizeh: screenSize.height,
                           ),
                         )

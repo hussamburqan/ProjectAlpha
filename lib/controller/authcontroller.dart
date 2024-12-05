@@ -182,7 +182,11 @@ class AuthController extends GetxController {
     return authBox.get('user_data');
   }
 
-  int getPatientId() {
+  int? getPatientId() {
     return authBox.get('patient_id');
+  }
+
+  int? getDoctorId() {
+    return authBox.get('doctor_id');
   }
 }

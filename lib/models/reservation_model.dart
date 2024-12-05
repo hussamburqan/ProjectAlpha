@@ -9,8 +9,12 @@ class Reservation {
   final String status;
   final String reasonForVisit;
   final String? notes;
-  final Doctor doctor;
-  final Clinic clinic;
+  final String doctorName;
+  final String doctorPhoto;
+  final String doctorSpeciality;
+  final String clinicName;
+  final String clinicPhone;
+  final String clinicMajor;
 
   Reservation({
     required this.id,
@@ -20,21 +24,29 @@ class Reservation {
     required this.status,
     required this.reasonForVisit,
     this.notes,
-    required this.doctor,
-    required this.clinic,
+    required this.doctorName,
+    required this.doctorPhoto,
+    required this.doctorSpeciality,
+    required this.clinicName,
+    required this.clinicPhone,
+    required this.clinicMajor,
   });
 
   factory Reservation.fromJson(Map<String, dynamic> json) {
     return Reservation(
-      id: json['id'],
-      date: json['date'],
-      time: json['time'],
-      durationMinutes: json['duration_minutes'],
-      status: json['status'],
-      reasonForVisit: json['reason_for_visit'],
+      id: json['id'] ?? 0,
+      date: json['date'] ?? '',
+      time: json['time'] ?? '',
+      durationMinutes: json['duration_minutes'] ?? 0,
+      status: json['status'] ?? '',
+      reasonForVisit: json['reason_for_visit'] ?? '',
       notes: json['notes'],
-      doctor: Doctor.fromJson(json['doctor']),
-      clinic: Clinic.fromJson(json['clinic']),
+      clinicMajor: json['clinic']['major'] ?? '',
+      clinicName: json['clinic']['name'] ?? '',
+      clinicPhone: json['clinic']['phone'] ?? '',
+      doctorPhoto: json['doctor']['photo'] ?? '',
+      doctorName: json['doctor']['user']['name'] ?? '',
+      doctorSpeciality: json['doctor']['speciality'] ?? '',
     );
   }
 }

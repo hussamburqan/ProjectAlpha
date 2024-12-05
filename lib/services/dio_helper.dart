@@ -42,12 +42,31 @@ class DioHelper {
     );
   }
 
+  static Future<Response> deleteData({
+    required String url,
+    Map<String, dynamic>? data,
+    Map<String, dynamic>? query,
+    String? customToken,
+  }) async {
+    try {
+      dio.options.headers['Authorization'] = 'Bearer ${customToken ?? token}';
+      return await dio.delete(
+        url,
+        data: data,
+        queryParameters: query,
+      );
+    } catch (error) {
+      rethrow;
+    }
+  }
+
   static Future<Response> getData({
     required String url,
     Map<String, dynamic>? query,
     String? customToken,
   }) async {
     try {
+      print(url);
       dio.options.headers['Authorization'] = 'Bearer ${customToken ?? token}';
       return await dio.get(url, queryParameters: query);
     } catch (error) {
@@ -65,7 +84,7 @@ class DioHelper {
     try {
       final requestOptions = options ?? Options();
       requestOptions.headers = {
-        ...dio.options.headers, // Preserve existing global headers
+        ...dio.options.headers,
         if (token != null) 'Authorization': 'Bearer $token',
       };
 

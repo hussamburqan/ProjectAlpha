@@ -117,7 +117,7 @@ class _DoctorBookingPageState extends State<DoctorBookingPage> {
         onPressed: () => Get.back(),
       ),
       title: Text(
-        'Book Appointment',
+        'إحجز موعد',
         style: TextStyle(color: Colors.black),
       ),
       centerTitle: true,
@@ -163,7 +163,7 @@ class _DoctorBookingPageState extends State<DoctorBookingPage> {
           CircleAvatar(
             radius: 30,
             backgroundImage: widget.doctor.photo != null
-                ? NetworkImage('${AppConstants.baseURLPhoto}${widget.doctor.photo}')
+                ? NetworkImage('${AppConstants.baseURLPhoto}storage/${widget.doctor.photo}')
                 : AssetImage('assets/doctor_placeholder.png') as ImageProvider,
           ),
           SizedBox(width: 16),
@@ -253,7 +253,7 @@ class _DoctorBookingPageState extends State<DoctorBookingPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Available Time Slots',
+            'الوقت المتاح',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -263,7 +263,7 @@ class _DoctorBookingPageState extends State<DoctorBookingPage> {
           _availableTimes.isEmpty
               ? Center(
             child: Text(
-              'No available slots for this date',
+              'جميع الاوقات محجوزة',
               style: TextStyle(color: Colors.grey[600]),
             ),
           )
@@ -314,7 +314,7 @@ class _DoctorBookingPageState extends State<DoctorBookingPage> {
           TextField(
             controller: _reasonController,
             decoration: InputDecoration(
-              labelText: 'Reason for Visit',
+              labelText: 'سبب الزيارة',
               border: OutlineInputBorder(),
               filled: true,
               fillColor: Colors.white,
@@ -325,7 +325,7 @@ class _DoctorBookingPageState extends State<DoctorBookingPage> {
           TextField(
             controller: _notesController,
             decoration: InputDecoration(
-              labelText: 'Additional Notes',
+              labelText: 'ملاحظات إضافية',
               border: OutlineInputBorder(),
               filled: true,
               fillColor: Colors.white,
@@ -350,7 +350,7 @@ class _DoctorBookingPageState extends State<DoctorBookingPage> {
           ),
         ),
         child: Text(
-          'Book Appointment',
+          'حجز موعد',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,

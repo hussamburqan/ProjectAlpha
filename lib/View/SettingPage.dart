@@ -37,7 +37,7 @@ class Settingpage extends StatelessWidget {
 
         _mySettingRow(screenSize,'الثيم','assets/layer 2.svg',
                 () {
-
+                  Get.dialog(ThemeDialog());
         }
         ),
 
@@ -45,7 +45,7 @@ class Settingpage extends StatelessWidget {
 
         _mySettingRow(screenSize,'اللغة','assets/trans.svg',
                 () {
-
+                  Get.dialog(LanguageDialog());
         }
         ),
 
@@ -148,6 +148,82 @@ class Settingpage extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.1),
       child: const Divider(thickness: 1),
+    );
+  }
+
+
+
+}
+class ThemeDialog extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Container(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'اختر المظهر',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 20),
+            ListTile(
+              leading: Icon(Icons.light_mode),
+              title: Text('فاتح'),
+              onTap: () {
+                Get.back();
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.dark_mode),
+              title: Text('داكن'),
+              onTap: () {
+                Get.back();
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class LanguageDialog extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Container(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'اختر اللغة',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 20),
+            ListTile(
+              leading: Text('🇸🇦'),
+              title: Text('العربية'),
+              onTap: () {
+                Get.updateLocale(Locale('ar'));
+                Get.back();
+              },
+            ),
+            ListTile(
+              leading: Text('🇺🇸'),
+              title: Text('English'),
+              onTap: () {
+                Get.updateLocale(Locale('en'));
+                Get.back();
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

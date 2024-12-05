@@ -6,7 +6,7 @@ import 'package:projectalpha/services/dio_helper.dart';
 
 class HomeController extends GetxController {
   RxBool isLoadingN = true.obs;
-  RxBool isLoadingA = true.obs;
+  RxBool isLoadingR = true.obs;
   var newsList = <MedicalNews>[].obs;
   final AuthController authController = Get.find<AuthController>();
   final reservations = <Reservation>[].obs;
@@ -16,53 +16,77 @@ class HomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+
   }
 
-  Future<void> getReservations() async {
+  Future<void> cancelReservation(int reservationId) async {
     try {
-      isLoadingA.value = true;
+      final response = await DioHelper.deleteData(
+        url: 'reservations/$reservationId',
+      );
 
-      final patientId = int.parse("${authController.getPatientId()}");
-      if (patientId == null) {
+      if (response.data['status'] == true) {
+        reservations.removeWhere((reservation) => reservation.id == reservationId);
         Get.snackbar(
-          'خطأ',
-          'لم يتم العثور على معرّف المريض',
+          'نجاح',
+          'تم إلغاء الحجز بنجاح',
         );
-        return;
+      } else {
+        throw Exception('Failed to cancel reservation');
+      }
+    } catch (e) {
+      print('Error cancelling reservation: $e');
+      Get.snackbar(
+        'خطأ',
+        'حدث خطأ أثناء إلغاء الحجز',
+      );
+    }
+  }
+
+  Future<void> getReservations(String status) async {
+    try {
+      isLoadingR.value = true;
+      final patientId = authController.getPatientId();
+      late final query;
+      if(status != ''){
+
+        query = {
+          'patient_id': patientId,
+          'status': status,
+        };
+      } else {
+        query = {
+          'patient_id': patientId,
+        };
+
       }
 
       final response = await DioHelper.getData(
-        url: 'reservations',
-        query: {
-          'patient_id': patientId.toString(),
-        },
+        url: 'reservations/search',
+        query: query,
       );
+
       print('Response Data: ${response.data}');
 
-      if (response.data['status'] && response.data['data'] != null) {
-        final reservationsData = response.data['data'];
+      if (response.data['status'] == true && response.data['data'] != null) {
+        final List<dynamic> reservationsData = response.data['data'];
 
-        if (reservationsData != null && reservationsData['data'] != null) {
-          reservations.value = (reservationsData['data'] as List)
-              .map((json) => Reservation.fromJson(json))
-              .toList();
-        } else {
-          Get.snackbar(
-            'تنبيه',
-            'لا توجد حجوزات حالياً',
-          );
-        }
+        reservations.value = reservationsData
+            .map((json) => Reservation.fromJson(json))
+            .toList();
+        print('test');
       } else {
-        throw Exception('فشل في جلب البيانات');
+        throw Exception('Failed to load reservations');
       }
     } catch (e) {
       print('Error fetching reservations: $e');
       Get.snackbar(
         'خطأ',
         'حدث خطأ أثناء جلب الحجوزات',
+
       );
     } finally {
-      isLoadingA.value = false;
+      isLoadingR.value = false;
     }
   }
 

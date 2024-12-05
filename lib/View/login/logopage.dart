@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:projectalpha/Controller/authcontroller.dart';
+import 'package:projectalpha/View/Doctor/doctorhome.dart';
 import 'package:projectalpha/View/login/login.dart';
 import 'package:projectalpha/view/MainHomePage.dart';
 
@@ -33,7 +34,24 @@ class _SplashScreenState extends State<SplashScreen>
 
     Future.delayed(Duration(seconds: 3), () {
       print('Is user logged in? ${authController.isLogged}');
-      Get.offAll(() => authController.isLogged ? MainHomepage() : LoginPage());
+
+      final patientId = authController.getPatientId();
+      final doctorId = authController.getDoctorId();
+
+      print('Patient ID: $patientId');
+      print('Doctor ID: $doctorId');
+
+      if (authController.isLogged) {
+        if (patientId != null) {
+          Get.offAll(() => MainHomepage());
+        } else if (doctorId != null) {
+          Get.offAll(() => MainHomeDoctor());
+        } else {
+          Get.offAll(() => LoginPage());
+        }
+      } else {
+        Get.offAll(() => LoginPage());
+      }
     });
 
   }
