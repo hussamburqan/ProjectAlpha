@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:projectalpha/Controller/home_controller.dart';
+import 'package:projectalpha/View/patientarchivedetails.dart';
 import 'package:projectalpha/component/MyImage.dart';
 import 'package:projectalpha/models/reservation_model.dart';
 import 'package:projectalpha/services/constants.dart';
@@ -8,16 +9,18 @@ import 'package:projectalpha/services/constants.dart';
 class NotificationsPage extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
+    final screenSize = MediaQuery
+        .of(context)
+        .size;
 
     controller.getReservations('');
 
     return Scaffold(
       backgroundColor: Color(-789517),
-      body:  Column(
+      body: Column(
         children: [
           SizedBox(height: screenSize.height * 0.01),
-          _buildAppointmentList(controller,screenSize),
+          _buildAppointmentList(controller, screenSize),
           SizedBox(height: screenSize.height * 0.1),
 
         ],
@@ -49,28 +52,28 @@ class NotificationsPage extends GetView<HomeController> {
         child: ListView.builder(
           itemCount: filteredAppointments.length,
           itemBuilder: (context, index) {
-            return _buildAppointmentCard(filteredAppointments[index], screenSize);
+            return _buildAppointmentCard(
+                filteredAppointments[index], screenSize);
           },
         ),
       );
     });
   }
+
   Widget _buildAppointmentCard(Reservation reservation, Size screenSize) {
     String getStatusMessage(String status) {
       switch (status) {
         case 'pending':
           return 'حجزك في قائمة الانتظار';
-        case 'confirmed':
+        case 'accepted':
           return 'تمت الموافقة على حجزك';
+        case 'confirmed':
+          return 'شكرا لزيارتك لنا يمكنك الضغط لرؤية ملفك الطبي';
         case 'cancelled':
           return 'تم إلغاء حجزك';
         default:
           return '';
       }
-    }
-
-    if (reservation.status == 'completed') {
-      return SizedBox.shrink();
     }
 
     return InkWell(
@@ -99,7 +102,10 @@ class NotificationsPage extends GetView<HomeController> {
             );
           },
         );
-      } : null,
+      } : reservation.status == 'confirmed' ? () {
+        Get.to(() => PatientArchiveDetails(reservationId: reservation.id));
+      }
+          : null,
       child: Padding(
         padding: EdgeInsets.symmetric(
           horizontal: screenSize.width * 0.02,
@@ -168,7 +174,8 @@ class NotificationsPage extends GetView<HomeController> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: MyImageNet(
-                    path: '${AppConstants.baseURLPhoto}storage/${reservation.doctorPhoto}',
+                    path: '${AppConstants.baseURLPhoto}storage/${reservation
+                        .doctorPhoto}',
                     sizeh: screenSize.height,
                   ),
                 )

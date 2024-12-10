@@ -16,7 +16,6 @@ class HomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-
   }
 
   Future<void> cancelReservation(int reservationId) async {

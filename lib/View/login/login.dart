@@ -67,7 +67,7 @@ class _LoginPageState extends State<LoginPage> {
             height: screenSize.height * 0.2,
           ),
           Padding(
-            padding: EdgeInsets.only(left: screenSize.width * 0.01, top: screenSize.height * 0.025),
+            padding: EdgeInsets.only(left: screenSize.width * 0.035, top: screenSize.height * 0.035),
             child: Align(
               alignment: Alignment.topLeft,
               child: SvgPicture.asset(

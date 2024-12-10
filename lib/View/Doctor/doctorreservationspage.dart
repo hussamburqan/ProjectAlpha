@@ -1,60 +1,81 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:projectalpha/Controller/doctor_reservation_controller.dart';
+import 'package:projectalpha/Controller/patient_archive_controller.dart';
+import 'package:projectalpha/View/Doctor/PatientArchiveForm.dart';
 import 'package:projectalpha/models/doctor_reservation_model.dart';
+import 'package:projectalpha/models/patient_archive_model.dart';
 
 class DoctorReservationsPage extends StatelessWidget {
   final controller = Get.put(DoctorReservationController());
 
   @override
   Widget build(BuildContext context) {
+    controller.getReservations();
+
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('المواعيد المؤكدة'),
-          centerTitle: true,
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: 'المواعيد القادمة'),
-              Tab(text: 'المواعيد السابقة'),
+        backgroundColor: const Color(-789517),
+        body: SafeArea(
+          child: Column(
+            children: [
+              TabBar(
+                tabs: const [
+                  Tab(text: 'مواعيد اليوم'),
+                  Tab(text: 'المواعيد القادمة'),
+                  Tab(text: 'المواعيد السابقة'),
+                ],
+              ),
+              Expanded(
+                child: TabBarView(
+                  children: [
+                    _buildReservationsList(
+                      filter: (res, today) =>
+                          _isSameDay(DateTime.parse(res.date), today),
+                      emptyMessage: 'لا توجد مواعيد اليوم',
+                    ),
+                    _buildReservationsList(
+                      filter: (res, today) =>
+                      res.status == 'confirmed' &&
+                          DateTime.parse(res.date).isAfter(today),
+                      emptyMessage: 'لا توجد مواعيد قادمة',
+                    ),
+                    _buildReservationsList(
+                      filter: (res, today) =>
+                      res.status == 'confirmed' &&
+                          DateTime.parse(res.date).isBefore(today),
+                      emptyMessage: 'لا توجد مواعيد سابقة',
+                      isPast: true,
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
-        ),
-        body: TabBarView(
-          children: [
-            _buildCurrentReservations(),
-            _buildPastReservations(),
-          ],
         ),
       ),
     );
   }
 
-  Widget _buildCurrentReservations() {
+  Widget _buildReservationsList({
+    required bool Function(DoctorReservation res, DateTime today) filter,
+    required String emptyMessage,
+    bool isPast = false,
+  }) {
     return Obx(() {
       if (controller.isLoading.value) {
-        return Center(child: CircularProgressIndicator());
+        return const Center(child: CircularProgressIndicator());
       }
 
-      final now = DateTime.now();
-      final today = DateTime(now.year, now.month, now.day);
+      final today = DateTime.now();
+      final reservations = controller.reservations.where((res) => filter(res, today)).toList();
 
-      final currentReservations = controller.reservations
-          .where((res) {
-        final reservationDate = DateTime.parse(res.date);
-        return res.status == 'confirmed' &&
-            DateTime(reservationDate.year, reservationDate.month, reservationDate.day)
-                .isAtSameMomentAs(today) ||
-            reservationDate.isAfter(now);
-      })
-          .toList();
-
-      if (currentReservations.isEmpty) {
-        return Center(child: Text('لا توجد مواعيد مؤكدة'));
+      if (reservations.isEmpty) {
+        return Center(child: Text(emptyMessage));
       }
 
-      currentReservations.sort((a, b) {
+      reservations.sort((a, b) {
         final dateComparison = DateTime.parse(a.date).compareTo(DateTime.parse(b.date));
         if (dateComparison != 0) return dateComparison;
         return a.time.compareTo(b.time);
@@ -63,46 +84,21 @@ class DoctorReservationsPage extends StatelessWidget {
       return RefreshIndicator(
         onRefresh: controller.getReservations,
         child: ListView.builder(
-          itemCount: currentReservations.length,
+          itemCount: reservations.length,
           itemBuilder: (context, index) {
-            final reservation = currentReservations[index];
-            return _buildReservationCard(reservation);
+            final reservation = reservations[index];
+            return _buildReservationCard(reservation, isPast: isPast);
           },
         ),
       );
     });
   }
 
-  Widget _buildPastReservations() {
-    return Obx(() {
-      if (controller.isLoading.value) {
-        return Center(child: CircularProgressIndicator());
-      }
-
-      final pastReservations = controller.reservations
-          .where((res) =>
-      res.status == 'confirmed' &&
-          DateTime.parse(res.date).isBefore(DateTime.now()))
-          .toList();
-
-      if (pastReservations.isEmpty) {
-        return Center(child: Text('لا توجد مواعيد سابقة'));
-      }
-
-      return ListView.builder(
-        itemCount: pastReservations.length,
-        itemBuilder: (context, index) {
-          return _buildReservationCard(pastReservations[index], isPast: true);
-        },
-      );
-    });
-  }
-
   Widget _buildReservationCard(DoctorReservation reservation, {bool isPast = false}) {
     return Card(
-      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
@@ -110,19 +106,20 @@ class DoctorReservationsPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  reservation.patient.name,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  reservation.patient.user.name,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             _buildInfoRow(Icons.calendar_today, '${reservation.date} ${reservation.time}'),
-            _buildInfoRow(Icons.phone, reservation.patient.phone),
-            _buildInfoRow(Icons.person, 'العمر: ${reservation.patient.age}'),
+            _buildInfoRow(Icons.phone, reservation.patient.user.phone),
+            _buildInfoRow(Icons.person, 'العمر: ${reservation.patient.user.age}'),
             _buildInfoRow(Icons.notes, 'سبب الزيارة: ${reservation.reasonForVisit}'),
+            ElevatedButton(
+              onPressed: () => _handleArchiveAction(reservation, isPast),
+              child: Text(isPast ? 'تعديل الأرشيف' : 'إنشاء أرشيف'),
+            ),
           ],
         ),
       ),
@@ -131,15 +128,37 @@ class DoctorReservationsPage extends StatelessWidget {
 
   Widget _buildInfoRow(IconData icon, String? text) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          Text(text!),
-          SizedBox(width: 8),
+          Text(text ?? ''),
+          const SizedBox(width: 8),
           Icon(icon, size: 16, color: Colors.grey),
         ],
       ),
     );
+  }
+
+  void _handleArchiveAction(DoctorReservation reservation, bool isPast) async {
+    final controller1 = Get.put(PatientArchiveController());
+    PatientArchive? archive = await controller1.getArchiveByReservationId(reservation.id);
+
+    if (archive != null) {
+      Get.to(() => PatientArchiveForm(
+        reservation: reservation,
+        isEdit: true,
+        existingArchive: archive,
+      ));
+    } else {
+      Get.to(() => PatientArchiveForm(
+        reservation: reservation,
+        isEdit: false,
+      ));
+    }
+  }
+
+  bool _isSameDay(DateTime date1, DateTime date2) {
+    return date1.year == date2.year && date1.month == date2.month && date1.day == date2.day;
   }
 }

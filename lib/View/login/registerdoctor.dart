@@ -58,6 +58,10 @@ class _DoctorRegisterPageState extends State<DoctorRegisterPage> {
     }
   }
 
+  String convertTo24Hour(TimeOfDay time) {
+    return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+  }
+
   Future<void> pickImage() async {
     try {
       final ImagePicker picker = ImagePicker();
@@ -84,26 +88,22 @@ class _DoctorRegisterPageState extends State<DoctorRegisterPage> {
   Future<void> register() async {
     if (!_formKey.currentState!.validate()) return;
 
-    // تحقق من الاسم الأول والثاني
     if (firstNameController.text.isEmpty || lastNameController.text.isEmpty) {
       Get.snackbar('خطأ', 'يرجى إدخال الاسم كاملاً');
       return;
     }
 
-    // تحقق من البريد الإلكتروني
     if (emailController.text.isEmpty) {
       Get.snackbar('خطأ', 'يرجى إدخال البريد الإلكتروني');
       return;
     }
 
-    // التحقق من صحة صيغة البريد الإلكتروني
     final emailRegExp = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (!emailRegExp.hasMatch(emailController.text)) {
       Get.snackbar('خطأ', 'صيغة البريد الإلكتروني غير صحيحة');
       return;
     }
 
-    // تحقق من كلمة المرور
     if (passwordController.text.isEmpty) {
       Get.snackbar('خطأ', 'يرجى إدخال كلمة المرور');
       return;
@@ -113,7 +113,6 @@ class _DoctorRegisterPageState extends State<DoctorRegisterPage> {
       return;
     }
 
-    // تحقق من تطابق كلمة المرور
     if (passwordController.text != confirmPasswordController.text) {
       Get.snackbar('خطأ', 'كلمة المرور غير متطابقة');
       return;
@@ -131,6 +130,16 @@ class _DoctorRegisterPageState extends State<DoctorRegisterPage> {
     if (addressController.text.isEmpty) {
       Get.snackbar('خطأ', 'يرجى إدخال العنوان');
       return;
+    }
+
+    if (startWorkTime != null && endWorkTime != null) {
+      String startTime = convertTo24Hour(startWorkTime!);
+      String endTime = convertTo24Hour(endWorkTime!);
+
+      if (startTime.compareTo(endTime) >= 0) {
+        Get.snackbar('خطأ', 'وقت بدء العمل يجب أن يكون قبل وقت النهاية');
+        return;
+      }
     }
 
     if (experienceYearsController.text.isEmpty) {
@@ -226,6 +235,26 @@ class _DoctorRegisterPageState extends State<DoctorRegisterPage> {
 
   }
 
+  String formatTimeToAMPM(String? timeString) {
+    if (timeString == null || timeString.isEmpty) return '';
+
+    try {
+      final timeParts = timeString.split(':');
+      if (timeParts.length < 2) return '';
+
+      int hours = int.parse(timeParts[0]);
+      final minutes = timeParts[1];
+
+      final period = hours >= 12 ? 'PM' : 'AM';
+      hours = hours > 12 ? hours - 12 : hours;
+      hours = hours == 0 ? 12 : hours;
+
+      return '$hours:$minutes $period';
+    } catch (e) {
+      return '';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
@@ -244,7 +273,7 @@ class _DoctorRegisterPageState extends State<DoctorRegisterPage> {
             height: screenSize.height * 0.2,
           ),
           Padding(
-            padding: EdgeInsets.only(left: screenSize.width * 0.01, top: screenSize.height * 0.025),
+            padding: EdgeInsets.only(left: screenSize.width * 0.035, top: screenSize.height * 0.035),
             child: Align(
               alignment: Alignment.topLeft,
               child: SvgPicture.asset(
@@ -441,6 +470,9 @@ class _DoctorRegisterPageState extends State<DoctorRegisterPage> {
                               onChanged: (value) {
                                 setState(() {
                                   selectedClinic = value;
+                                  if (value != null) {
+                                    controller.updateSelectedClinicWorkHours(value);
+                                  }
                                 });
                               },
                               validator: (value) => value == null ? 'يرجى اختيار العيادة' : null,
@@ -448,14 +480,45 @@ class _DoctorRegisterPageState extends State<DoctorRegisterPage> {
                           ],
                         );
                       }),
-// وقت العمل
+                      SizedBox(height: screenSize.height * 0.02),
+                      Align(alignment: Alignment.centerRight,
+                        child: Text(
+                          'يجب ان يكون وقت العمل من ضمن اوقات العيادة',
+                          style: TextStyle(fontSize: screenSize.height * 0.018),
+                        ),
+                      ),
+                      SizedBox(height: screenSize.height * 0.02),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            '${formatTimeToAMPM(controller.selectedClinicWorkHours.value['closing_time'])}',
+                            style: TextStyle(fontSize: screenSize.height * 0.018),
+                          ),
+
+                          Text(
+                            ' الى ',
+                            style: TextStyle(fontSize: screenSize.height * 0.018),
+                          ),
+                          Text(
+                            '${formatTimeToAMPM(controller.selectedClinicWorkHours.value['opening_time'])}',
+                            style: TextStyle(fontSize: screenSize.height * 0.018),
+                          ),
+                         Text(' اوقات عمل العيادة من ',
+                            style: TextStyle(fontSize: screenSize.height * 0.018),
+                          ),
+                        ],
+                      ),
                       SizedBox(height: screenSize.height * 0.02),
                       Row(
                         children: [
+
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
+
+
                                 Text(
                                   'وقت نهاية العمل',
                                   style: TextStyle(fontSize: screenSize.height * 0.02),

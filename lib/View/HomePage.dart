@@ -327,9 +327,21 @@ class Homepage extends GetView<HomeController> {
         return Center(child: CircularProgressIndicator());
       }
 
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+
       final filteredAppointments = controller.reservations
-          .where((appointment) =>
-      appointment.status == 'confirmed')
+          .where((appointment) {
+        final appointmentDateTime = DateTime.parse('${appointment.date} ${appointment.time}');
+        final appointmentDate = DateTime(
+            appointmentDateTime.year,
+            appointmentDateTime.month,
+            appointmentDateTime.day
+        );
+
+        return appointment.status == 'accepted' &&
+            appointmentDate.compareTo(today) >= 0;
+      })
           .toList()
         ..sort((a, b) {
           final dateTimeA = DateTime.parse('${a.date} ${a.time}');

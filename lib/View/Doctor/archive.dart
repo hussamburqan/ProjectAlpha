@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:projectalpha/Controller/doctor_reservation_controller.dart';
-import 'package:projectalpha/View/Doctor/patientarchivedetailpage.dart';
+import 'package:projectalpha/Controller/patient_archive_controller.dart';
+import 'package:projectalpha/View/Doctor/PatientArchiveForm.dart';
 import 'package:projectalpha/models/patient_archive_model.dart';
 import 'package:intl/intl.dart';
 
@@ -11,9 +11,10 @@ class PatientArchivePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('أرشيف المرضى'),
-        centerTitle: true,
+      backgroundColor: Color(-789517),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showArchiveForm(context),
+        child: Icon(Icons.add),
       ),
       body: Column(
         children: [
@@ -55,17 +56,17 @@ class PatientArchivePage extends StatelessWidget {
         itemCount: controller.archives.length,
         itemBuilder: (context, index) {
           final archive = controller.archives[index];
-          return _buildArchiveCard(archive);
+          return _buildArchiveCard(archive, context);
         },
       );
     });
   }
 
-  Widget _buildArchiveCard(PatientArchive archive) {
+  Widget _buildArchiveCard(PatientArchive archive, context) {
     return Card(
       margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: InkWell(
-        onTap: () => Get.to(() => PatientArchiveDetailPage(archive: archive)),
+        onTap: () => _showArchiveForm(context, archive: archive),
         child: Padding(
           padding: EdgeInsets.all(16),
           child: Column(
@@ -75,7 +76,7 @@ class PatientArchivePage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    DateFormat('yyyy/MM/dd').format(archive.date as DateTime),
+                    DateFormat('yyyy/MM/dd').format(DateTime.parse(archive.date)),
                     style: TextStyle(color: Colors.grey[600]),
                   ),
                   Text(
@@ -86,20 +87,68 @@ class PatientArchivePage extends StatelessWidget {
               ),
               SizedBox(height: 8),
               Text(
-                'التشخيص: ${archive.diagnosis}',
+                'التشخيص: ${archive.description}',
                 textAlign: TextAlign.right,
               ),
-              SizedBox(height: 4),
               Text(
-                'العلاج: ${archive.treatment}',
+                'العلاج: ${archive.instructions}',
                 textAlign: TextAlign.right,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
+              ),
+              SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // IconButton(
+                  //   icon: Icon(Icons.delete, color: Colors.red),
+                  //   onPressed: () => controller.deleteArchive(archive.id),
+                  // ),
+                  _buildStatusChip(archive.status),
+                ],
               ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildStatusChip(String status) {
+    Color chipColor;
+    String label;
+    switch (status) {
+      case 'good':
+        chipColor = Colors.green;
+        label = 'بصحة جيدة';
+        break;
+      case 'bad':
+        chipColor = Colors.red;
+        label = 'بصحة سيئة';
+        break;
+      case 'need_to_care':
+        chipColor = Colors.orange;
+        label = 'يجب ان تلتزم';
+        break;
+      default:
+        chipColor = Colors.grey;
+        label = 'معلق';
+    }
+
+    return Chip(
+      label: Text(
+        label,
+        style: TextStyle(color: Colors.white),
+      ),
+      backgroundColor: chipColor,
+    );
+  }
+
+  void _showArchiveForm(BuildContext context, {PatientArchive? archive}) {
+    Get.to(() => PatientArchiveForm(
+      reservation: archive!.reservation,
+      isEdit: archive != null,
+      existingArchive: archive,
+    ));
   }
 }

@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
 import 'package:projectalpha/Controller/authcontroller.dart';
 import 'package:projectalpha/models/doctor_reservation_model.dart';
-import 'package:projectalpha/models/patient_archive_model.dart';
 import 'package:projectalpha/models/reservation_model.dart';
 import 'package:projectalpha/services/dio_helper.dart';
 
@@ -15,7 +14,6 @@ class DoctorReservationController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    getReservations();
   }
 
   Future<void> getReservations() async {
@@ -24,7 +22,7 @@ class DoctorReservationController extends GetxController {
       final doctorId = authController.getDoctorId();
 
       final response = await DioHelper.getData(
-        url: 'reservations',
+        url: 'reservations/search',
         query: {
           'doctor_id': doctorId,
           'status': 'confirmed',
@@ -44,32 +42,5 @@ class DoctorReservationController extends GetxController {
     } finally {
       isLoading.value = false;
     }
-  }
-}
-
-class PatientArchiveController extends GetxController {
-  final isLoading = false.obs;
-  final archives = <PatientArchive>[].obs;
-  final searchQuery = ''.obs;
-
-  @override
-  void onInit() {
-    super.onInit();
-    fetchArchives();
-  }
-
-  Future<void> fetchArchives() async {
-    try {
-      isLoading.value = true;
-    } catch (e) {
-      print('Error fetching archives: $e');
-      Get.snackbar('خطأ', 'حدث خطأ أثناء جلب السجلات');
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
-  void searchPatients(String query) {
-    searchQuery.value = query;
   }
 }

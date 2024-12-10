@@ -59,6 +59,40 @@ class DioHelper {
       rethrow;
     }
   }
+  static Future<Response> putData({
+    required String url,
+    dynamic data,
+    Map<String, dynamic>? query,
+    String? token,
+    Options? options,
+  }) async {
+    try {
+      final requestOptions = options ?? Options();
+      requestOptions.headers = {
+        ...dio.options.headers,
+        if (token != null) 'Authorization': 'Bearer $token',
+      };
+
+      return await dio.put(
+        url,
+        data: data,
+        queryParameters: query,
+        options: requestOptions,
+      );
+    } on DioException catch (e) {
+      if (e.response != null && e.response?.data is Map) {
+        final responseData = e.response!.data as Map<String, dynamic>;
+        if (responseData.containsKey('message')) {
+          throw responseData['message'];
+        } else if (responseData.containsKey('errors')) {
+          final errors = responseData['errors'] as Map<String, dynamic>;
+          final firstError = errors.values.first;
+          throw firstError is List ? firstError.first : firstError.toString();
+        }
+      }
+      throw 'An error occurred while connecting to the server.';
+    }
+  }
 
   static Future<Response> getData({
     required String url,

@@ -1,5 +1,3 @@
-import 'package:projectalpha/models/doctor_model.dart';
-import 'package:projectalpha/models/nclinics_model.dart';
 
 class Reservation {
   final int id;
@@ -41,9 +39,9 @@ class Reservation {
       status: json['status'] ?? '',
       reasonForVisit: json['reason_for_visit'] ?? '',
       notes: json['notes'],
-      clinicMajor: json['clinic']['major'] ?? '',
-      clinicName: json['clinic']['name'] ?? '',
-      clinicPhone: json['clinic']['phone'] ?? '',
+      clinicMajor: json['clinic']['major']['name'] ?? '',
+      clinicName: json['clinic']['user']['name'] ?? '',
+      clinicPhone: json['clinic']['user']['phone'] ?? '',
       doctorPhoto: json['doctor']['photo'] ?? '',
       doctorName: json['doctor']['user']['name'] ?? '',
       doctorSpeciality: json['doctor']['speciality'] ?? '',

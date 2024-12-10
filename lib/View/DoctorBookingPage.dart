@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -22,7 +21,7 @@ class DoctorBookingPage extends StatefulWidget {
 }
 
 class _DoctorBookingPageState extends State<DoctorBookingPage> {
-  DateTime _selectedDay = DateTime.now().add(Duration(days: 1)); // Start from tomorrow
+  DateTime _selectedDay = DateTime.now().add(Duration(days: 1));
   String? _selectedTime;
   List<String> _availableTimes = [];
   bool _isLoading = false;
@@ -51,14 +50,14 @@ class _DoctorBookingPageState extends State<DoctorBookingPage> {
 
     try {
       final formattedDate = DateFormat('yyyy-MM-dd').format(_selectedDay);
-      final patientId = authController.getPatientId(); // Get patient ID from auth controller
+      final patientId = authController.getPatientId();
 
       final response = await DioHelper.getData(
         url: 'reservations-slots',
         query: {
           'date': formattedDate,
           'doctor_id': widget.doctor.id.toString(),
-          'patient_id': patientId.toString(), // Add patient_id
+          'patient_id': patientId.toString(),
         },
       );
 
@@ -110,7 +109,7 @@ class _DoctorBookingPageState extends State<DoctorBookingPage> {
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: Color(-15441249),
       elevation: 0,
       leading: IconButton(
         icon: Icon(Icons.arrow_back_ios, color: Colors.black),
@@ -118,7 +117,7 @@ class _DoctorBookingPageState extends State<DoctorBookingPage> {
       ),
       title: Text(
         'إحجز موعد',
-        style: TextStyle(color: Colors.black),
+        style: TextStyle(color: Colors.white),
       ),
       centerTitle: true,
     );
@@ -353,6 +352,7 @@ class _DoctorBookingPageState extends State<DoctorBookingPage> {
           'حجز موعد',
           style: TextStyle(
             fontSize: 16,
+            color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),

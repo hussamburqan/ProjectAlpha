@@ -12,6 +12,7 @@ class DoctorRegisterController extends GetxController {
   final clinics = <Map<String, dynamic>>[].obs;
   final currentDoctor = Rx<Doctor?>(null);
   final AuthController authController = Get.find<AuthController>();
+  final selectedClinicWorkHours = RxMap<String, String>({}).obs;
 
   Box get authBox => authController.authBox;
 
@@ -38,12 +39,28 @@ class DoctorRegisterController extends GetxController {
         clinicsResponse.data['data'].map((clinic) => {
           'id': clinic['id'],
           'name': clinic['user']['name'],
+          'opening_time': clinic['opening_time'],
+          'closing_time': clinic['closing_time'],
         }),
       );
     } catch (e) {
       Get.snackbar('Error', 'Failed to load majors or clinics.');
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  void updateSelectedClinicWorkHours(int clinicId) {
+    final selectedClinic = clinics.firstWhere(
+          (clinic) => clinic['id'] == clinicId,
+      orElse: () => <String, dynamic>{},
+    );
+
+    if (selectedClinic != null) {
+      selectedClinicWorkHours.update((val) {
+        val?['opening_time'] = selectedClinic['opening_time'] ?? '';
+        val?['closing_time'] = selectedClinic['closing_time'] ?? '';
+      });
     }
   }
 

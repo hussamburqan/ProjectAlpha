@@ -59,18 +59,15 @@ class ClinicSearchController extends GetxController {
       bool matchesSpecialization = true;
       bool matchesLocation = true;
 
-      // فلترة البحث
       if (searchController.text.isNotEmpty) {
         matchesSearch = clinic.user.name.toLowerCase().contains(searchController.text.toLowerCase()) ||
             clinic.location.toLowerCase().contains(searchController.text.toLowerCase());
       }
 
-      // فلترة التخصص
       if (selectedSpecialization.isNotEmpty) {
         matchesSpecialization = clinic.major.name == selectedSpecialization.value;
       }
 
-      // فلترة المحافظة
       if (selectedLocation.isNotEmpty) {
         matchesLocation = clinic.location.split(',').last.trim() == selectedLocation.value;
       }
