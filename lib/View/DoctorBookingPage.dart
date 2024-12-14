@@ -109,10 +109,11 @@ class _DoctorBookingPageState extends State<DoctorBookingPage> {
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
+
       backgroundColor: Color(-15441249),
       elevation: 0,
       leading: IconButton(
-        icon: Icon(Icons.arrow_back_ios, color: Colors.black),
+        icon: Icon(Icons.arrow_back_ios, color: Colors.white),
         onPressed: () => Get.back(),
       ),
       title: Text(

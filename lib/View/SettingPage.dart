@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:projectalpha/Controller/authcontroller.dart';
+import 'package:projectalpha/View/Doctor/profilepage.dart';
+import 'package:projectalpha/View/profilepage.dart';
 
 class Settingpage extends StatelessWidget {
   Settingpage({super.key});
@@ -19,7 +21,14 @@ class Settingpage extends StatelessWidget {
 
         _mySettingRow(screenSize,'إعدادات الحساب','assets/key.svg',
                 () {
-
+                  final controller = Get.put(AuthController());
+                  final patientId = controller.getPatientId();
+                  final DoctorId = controller.getDoctorId();
+                  if(patientId != null){
+                    Get.to(() => PatientProfilePage());
+                  } else if(DoctorId != null) {
+                    Get.to(() => DoctorProfilePage());
+                  }
             }
         ),
 

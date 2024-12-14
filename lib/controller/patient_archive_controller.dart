@@ -19,7 +19,6 @@ class PatientArchiveController extends GetxController {
   void searchPatients(String name) async {
     isLoading.value = true;
     try {
-      print("Starting search with patient_name: $name");
 
       final authController = Get.find<AuthController>();
       final doctorId = authController.getDoctorId();
@@ -41,7 +40,6 @@ class PatientArchiveController extends GetxController {
           archives.value = (response.data['data'] as List)
               .map((e) => PatientArchive.fromJson(e))
               .toList();
-          print('ggggggggggggggggggggggggggggggggg');
         } else {
           print("Data is null or empty");
           archives.clear();
@@ -63,6 +61,7 @@ class PatientArchiveController extends GetxController {
 
   Future<PatientArchive?> getArchiveByReservationId(int reservationId) async {
     try {
+
       final response = await DioHelper.getData(
           url: '/patientarchive',
           query: {
@@ -70,7 +69,8 @@ class PatientArchiveController extends GetxController {
           }
       );
       if (response.statusCode == 200 && response.data['data'] != null) {
-        return response.data['data'][0];
+        archives.add(PatientArchive.fromJson(response.data['data'][0]));
+        return PatientArchive.fromJson(response.data['data'][0]);
       } else {
         return null;
       }
@@ -82,6 +82,7 @@ class PatientArchiveController extends GetxController {
 
   Future<void> submitArchive({
     required int reservationId,
+    required int patientId,
     bool isEdit = false,
     int? archiveId,
     required String diagnosis,
@@ -91,7 +92,7 @@ class PatientArchiveController extends GetxController {
       if (!formKey.currentState!.validate()) {
         return;
       }
-
+      print('Reservation ID: $reservationId');
       isLoading.value = true;
 
       final authController = Get.find<AuthController>();
@@ -99,6 +100,7 @@ class PatientArchiveController extends GetxController {
 
       final data = {
         'reservation_id': reservationId,
+        'patient_id': patientId,
         'doctor_id': doctorId,
         'date': DateTime.now().toIso8601String(),
         'description': diagnosis,
@@ -111,14 +113,13 @@ class PatientArchiveController extends GetxController {
           : await DioHelper.postData(url: 'patientarchive', data: data);
 
       if (response.data['status']) {
-        Get.back();
+        Get.back(result: true);
         Get.snackbar(
           'نجاح',
           isEdit ? 'تم تحديث السجل' : 'تم إنشاء السجل',
         );
       }
     } catch (e) {
-      print('Error submitting archive: $e');
       Get.snackbar('خطأ', 'حدث خطأ في حفظ السجل');
     } finally {
       isLoading.value = false;

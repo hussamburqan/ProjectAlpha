@@ -41,8 +41,14 @@ print(widget.existingArchive);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(-789517),
       appBar: AppBar(
-        title: Text(widget.isEdit ? 'تعديل السجل' : 'إنشاء سجل'),
+        iconTheme: IconThemeData(
+          color: Colors.white,
+        ),
+        centerTitle: true,
+        backgroundColor: Color(-15441249),
+        title: Text(widget.isEdit ? 'تعديل السجل' : 'إنشاء سجل' ,style: TextStyle(color: Colors.white),),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -50,7 +56,8 @@ print(widget.existingArchive);
           key: controller.formKey,
           child: ListView(
             children: [
-              Text(widget.isEdit ? 'انت تقوم بتعديل ارشيف موجود' : 'انت تنشئ ارشيف جديد'),
+              Center(child: Text(widget.isEdit ? 'انت تقوم بتعديل ارشيف موجود' : 'انت تنشئ ارشيف جديد')),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: diagnosisController,
                 decoration: InputDecoration(
@@ -72,7 +79,10 @@ print(widget.existingArchive);
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                value: controller.status.value,
+                value: controller.status.value.isNotEmpty &&
+                    ['good', 'bad', 'need_to_care'].contains(controller.status.value)
+                    ? controller.status.value
+                    : null,
                 items: [
                   const DropdownMenuItem(value: 'good', child: Text('بصحة جيدة')),
                   const DropdownMenuItem(value: 'bad', child: Text('بصحة سيئة')),
@@ -84,6 +94,7 @@ print(widget.existingArchive);
                   border: OutlineInputBorder(),
                 ),
               ),
+
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () {
@@ -93,9 +104,16 @@ print(widget.existingArchive);
                     diagnosis: diagnosisController.text,
                     treatment: treatmentController.text,
                     archiveId: widget.existingArchive != null ? widget.existingArchive!.id : null,
+                    patientId: widget.reservation.patient.id,
                   );
-                },
-                child: Text(widget.isEdit ? 'تحديث' : 'حفظ'),
+                },style: ElevatedButton.styleFrom(
+                backgroundColor: Color(-15441249),
+                padding: EdgeInsets.symmetric(
+                    horizontal: 32, vertical: 16),
+                textStyle: TextStyle(
+                    fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+                child: Text(widget.isEdit ? 'تحديث' : 'حفظ',style: TextStyle(color: Colors.white),),
               ),
             ],
           ),

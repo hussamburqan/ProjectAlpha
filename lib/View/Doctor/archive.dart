@@ -144,11 +144,15 @@ class PatientArchivePage extends StatelessWidget {
     );
   }
 
-  void _showArchiveForm(BuildContext context, {PatientArchive? archive}) {
-    Get.to(() => PatientArchiveForm(
+  void _showArchiveForm(BuildContext context, {PatientArchive? archive}) async {
+    final result = await Get.to(() => PatientArchiveForm(
       reservation: archive!.reservation,
       isEdit: archive != null,
       existingArchive: archive,
     ));
+    if (result != null && result == true) {
+      controller.searchPatients('');
+    }
   }
+
 }

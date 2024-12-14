@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:projectalpha/View/Doctor/archive.dart';
 import 'package:projectalpha/View/Doctor/doctorreservationspage.dart';
-import 'package:projectalpha/component/MyNavBar.dart';
+import 'package:projectalpha/component/navd.dart';
 import 'package:projectalpha/controller/navbar_controller.dart';
 import 'package:projectalpha/view/SettingPage.dart';
 import 'package:get/get.dart';
@@ -26,10 +26,8 @@ class _MainHomeDoctorState extends State<MainHomeDoctor> {
                 controller.pagenumber == 0
                     ? "مواعيد الطبيب"
                     : controller.pagenumber == 1
-                    ? 'الاشعارات'
-                    : controller.pagenumber == 2
                     ? 'أرشيف المرضى'
-                    : controller.pagenumber == 3
+                    : controller.pagenumber == 2
                     ? 'الاعدادات'
                     : '',
                 style: const TextStyle(color: Colors.white),
@@ -47,13 +45,11 @@ class _MainHomeDoctorState extends State<MainHomeDoctor> {
                   : controller.pagenumber == 1
                   ? PatientArchivePage()
                   : controller.pagenumber == 2
-                  ? PatientArchivePage()
-                  : controller.pagenumber == 3
                   ? Settingpage()
                   : const Placeholder()
           ),
 
-          const MyNavBar()
+          const MyNavBarDoctor()
         ],
       ),
     );

@@ -62,10 +62,7 @@ class AuthController extends GetxController {
         }else if (response.data['data']['patient'] != null){
           Get.offAllNamed('/mainhomepatient');
           saveUserDataLogin(response.data);
-        }else{
-
         }
-
       } else {
         Get.snackbar('خطأ', response.data['message']);
       }

@@ -21,6 +21,9 @@ class DoctorReservationsPage extends StatelessWidget {
           child: Column(
             children: [
               TabBar(
+                indicatorColor: Color(-15441249), // تغيير لون المؤشر
+                labelColor: Color(-15441249), // تغيير لون النص للتاب المختار
+                unselectedLabelColor: Colors.black, // تغيير لون النص للتاب الغير مختار
                 tabs: const [
                   Tab(text: 'مواعيد اليوم'),
                   Tab(text: 'المواعيد القادمة'),
@@ -116,9 +119,18 @@ class DoctorReservationsPage extends StatelessWidget {
             _buildInfoRow(Icons.phone, reservation.patient.user.phone),
             _buildInfoRow(Icons.person, 'العمر: ${reservation.patient.user.age}'),
             _buildInfoRow(Icons.notes, 'سبب الزيارة: ${reservation.reasonForVisit}'),
-            ElevatedButton(
-              onPressed: () => _handleArchiveAction(reservation, isPast),
-              child: Text(isPast ? 'تعديل الأرشيف' : 'إنشاء أرشيف'),
+            Center(
+              child: ElevatedButton(
+                onPressed: () => _handleArchiveAction(reservation, isPast),
+                child: Text(isPast ? 'تعديل الأرشيف' : 'إنشاء أرشيف',style: TextStyle(color: Colors.white),),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(-15441249),
+                  padding: EdgeInsets.symmetric(
+                      horizontal: 20, vertical: 10),
+                  textStyle: TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.bold),
+                ),
+              ),
             ),
           ],
         ),
